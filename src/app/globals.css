@@ -86,29 +86,6 @@ body{background:#fff;color:#2d251c}.shell{max-width:1240px;padding-inline:48px}.
  .shop-heading h3 { font-size: 20px; }
  .shop-price { font-size: 25px; }
 }
-.reviews-section { padding:44px 0 32px; background:linear-gradient(#fff,#fffdf9); }
-.reviews-section .section-heading h2 { margin-top:6px; font-size:31px; }
-.reviews-section .section-description { font-size:12px; margin-top:8px; }
-.reviews-track { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; margin-top:26px; }
-.review-tile { border:1px solid #eee7dc; border-radius:14px; background:#fff; padding:20px 23px; box-shadow:0 4px 16px #78532205; }
-.review-tile-top { display:flex; align-items:center; gap:13px; height:24px; }
-.review-mark { font:42px/1 Georgia,serif; color:#b68a48; transform:translateY(6px); }
-.review-stars { display:flex; gap:2px; color:#cfaa67; }
-.review-sample { margin-left:auto; color:#aa9d89; font-size:8px; background:#f8f4ed; padding:4px 7px; border-radius:20px; }
-.review-tile-text { color:#877d70; font-size:12px; line-height:1.95; margin-top:15px; }
-.review-tile-person { display:flex; align-items:center; gap:10px; border-top:1px solid #f0ebe3; padding-top:14px; margin-top:18px; }
-.review-avatar { width:34px; height:34px; display:grid; place-items:center; background:#f8f1e5; border-radius:50%; color:#af8a50; }
-.review-tile-person h3 { font-size:11px; font-weight:500; }
-.review-tile-person p { font-size:9px; color:#a29683; margin-top:3px; }
-.reviews-controls { display:flex; align-items:center; justify-content:center; gap:20px; margin-top:20px; }
-.reviews-controls>button { border:1px solid #e5daca; border-radius:50%; width:30px; height:30px; display:grid; place-items:center; color:#ad8b58; transition:background .2s; }
-.reviews-controls>button:hover { background:#f5ecde; }
-.reviews-dots { display:flex; align-items:center; gap:8px; }
-.reviews-dots button { width:6px; height:6px; border-radius:50%; background:#ddd6cb; }
-.reviews-dots button.selected { width:16px; border-radius:8px; background:#b58a47; }
-.reviews-disclaimer { font-size:9px; color:#a79c8b; text-align:center; margin-top:13px; line-height:1.8; }
-@media(max-width:900px) { .reviews-track { gap:13px; }.review-tile { padding:18px; }.review-tile-text { font-size:11px; } }
-@media(max-width:767px) { .reviews-section { padding-block:32px 25px; }.reviews-section .section-heading h2 { font-size:27px; }.reviews-section .section-description { font-size:11px; }.reviews-track { grid-template-columns:1fr; max-width:440px; margin:22px auto 0; }.review-secondary { display:none; }.review-tile { padding:21px 24px; }.review-tile-text { font-size:12px; }.reviews-disclaimer { font-size:8px; } }
 .floating-social { position:fixed; right:max(24px,env(safe-area-inset-right)); bottom:calc(26px + env(safe-area-inset-bottom)); z-index:30; display:flex; flex-direction:column; gap:11px; }
 .social-float { position:relative; width:51px; height:51px; border-radius:50%; display:grid; place-items:center; border:1px solid #eee7dc; background:#fff; box-shadow:0 4px 18px #39280e1c; transition:transform .2s,box-shadow .2s; }
 .social-float:hover { transform:translateY(-3px); box-shadow:0 7px 23px #39280e29; }
@@ -176,15 +153,6 @@ body{background:#fff;color:#2d251c}.shell{max-width:1240px;padding-inline:48px}.
  .benefit-grid strong { font-size:12px; white-space:normal; }
  .benefit-grid p { font-size:11px; }
  .benefits-copy { padding:28px 20px 32px; }
- .review-tile-text { font-size:13px; }
- .review-tile-person h3 { font-size:12px; }
- .review-tile-person p { font-size:11px; }
- .reviews-controls>button { width:44px; height:44px; }
- .reviews-dots { gap:4px; }
- .reviews-dots button,.reviews-dots button.selected { width:28px; height:44px; background:transparent; border-radius:0; position:relative; }
- .reviews-dots button::after { content:''; position:absolute; width:7px; height:7px; border-radius:50%; background:#ddd6cb; left:50%; top:50%; transform:translate(-50%,-50%); }
- .reviews-dots button.selected::after { background:#b58a47; width:17px; border-radius:7px; }
- .reviews-disclaimer { font-size:10px; padding-inline:7px; }
  .faq-trigger { font-size:13px; gap:12px; padding-block:21px; }
  .faq-content p { font-size:12px; padding-left:26px; padding-right:0; }
  .faq-grid .section-description { font-size:12px; }
