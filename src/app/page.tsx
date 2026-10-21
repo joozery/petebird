@@ -1,67 +1,87 @@
-'use client';
-
-import Image from 'next/image';
 import productOne from '@/assets/product1.png';
 import productTwo from '@/assets/product2.png';
 import premiumBox from '../../public/product/3500.png';
 import premiumRound from '../../public/product/7000.png';
-import coverHero from '@/assets/cover/coverhero.png';
-import aboutBackground from '@/assets/cover/about-reference.png';
-import lineQrCode from '@/assets/cover/qrcodeline.png';
-import { Accordion, Dialog } from 'radix-ui';
-import { ArrowRight, Menu, X, Leaf, ShieldCheck, Gem, Phone, MessageCircle, ArrowUpRight, Plus, Truck, Heart, MoonStar, Flower2 } from 'lucide-react';
+import { connectDB } from '@/lib/db';
+import { Product } from '@/lib/models/Product';
+import { SiteContent, SITE_CONTENT_KEYS, type SiteContentKey } from '@/lib/models/SiteContent';
+import { ContactInfo } from '@/lib/models/ContactInfo';
+import { dictionaries, type Dict, type Lang } from '@/i18n/dictionaries';
+import type { ContactInfo as ContactData } from '@/i18n/LanguageProvider';
+import { HomeClient, type ProductData } from './HomeClient';
 
-const nav = [['หน้าแรก', '#home'], ['เกี่ยวกับเรา', '#about'], ['สินค้า', '#products'], ['ความใส่ใจ', '#benefits'], ['ติดต่อเรา', '#contact']];
-const lineUrl = process.env.NEXT_PUBLIC_LINE_URL;
-const phone = process.env.NEXT_PUBLIC_CONTACT_PHONE;
-const facebookUrl = process.env.NEXT_PUBLIC_FACEBOOK_URL;
+const LANGS: Lang[] = ['th', 'en', 'zh'];
 
-function Photo({ box, className = '', label }: { box: [number, number, number, number]; className?: string; label: string }) {
-  const [x, y, w, h] = box;
-  return <div className={`photo ${className}`} role="img" aria-label={label} style={{ aspectRatio: `${w}/${h}` }}><img src="/images/pete-reference.png" alt="" draggable={false} style={{ width: `${1024 / w * 100}%`, maxWidth: 'none', left: `${-x / w * 100}%`, top: `${-y / h * 100}%` }}/></div>;
-}
-function LineIcon() { return <span className="line-icon">LINE</span>; }
-function Contact({ children, className = 'gold-button' }: { children?: React.ReactNode; className?: string }) {
-  return lineUrl ? <a className={className} aria-label={className === 'product-contact' ? 'สอบถามสินค้าผ่าน LINE' : undefined} href={lineUrl} target="_blank" rel="noopener noreferrer"><LineIcon/>{children || 'สอบถาม/สั่งซื้อ'}</a> : <Dialog.Root><Dialog.Trigger className={className} aria-label={className === 'product-contact' ? 'สอบถามสินค้าผ่าน LINE' : undefined}><LineIcon/>{children || 'สอบถาม/สั่งซื้อ'}</Dialog.Trigger><Dialog.Portal><Dialog.Overlay className="dialog-overlay"/><Dialog.Content className="dialog-content"><Dialog.Close className="dialog-close" aria-label="ปิด"><X/></Dialog.Close><MessageCircle className="text-gold" size={34}/><Dialog.Title className="mt-4 text-2xl font-semibold">สอบถาม / สั่งซื้อ</Dialog.Title><Dialog.Description className="mt-4 leading-7 text-muted">ช่องทาง LINE กำลังอยู่ระหว่างการตั้งค่า กรุณากลับมาตรวจสอบอีกครั้ง</Dialog.Description><Dialog.Close className="gold-button mt-6">รับทราบ</Dialog.Close></Dialog.Content></Dialog.Portal></Dialog.Root>;
-}
-function FloatingSocial() {
- const channels = [
-  { id: 'line', name: 'LINE', label: 'แชทผ่าน LINE', href: lineUrl, icon: '/icons/line.svg' },
-  { id: 'facebook', name: 'Facebook', label: 'ติดตาม Facebook', href: facebookUrl, icon: '/icons/facebook.svg' },
-  { id: 'phone', name: 'โทรศัพท์', label: phone ? `โทร ${phone}` : 'โทรหาเรา', href: phone ? `tel:${phone.replace(/[^+\d]/g, '')}` : undefined, icon: null },
- ];
- return <aside className="floating-social" aria-label="ช่องทางติดต่อ">{channels.map(channel => {
-  const content = <><span className="social-tooltip" aria-hidden="true">{channel.label}</span>{channel.icon ? <Image src={channel.icon} width={28} height={28} alt=""/> : <Phone size={23} strokeWidth={1.8}/>}</>;
-  return channel.href ? <a key={channel.id} className={`social-float social-${channel.id}`} href={channel.href} aria-label={channel.label} target={channel.id === 'phone' ? undefined : '_blank'} rel={channel.id === 'phone' ? undefined : 'noopener noreferrer'}>{content}</a> : <Dialog.Root key={channel.id}><Dialog.Trigger className={`social-float social-${channel.id}`} aria-label={channel.label}>{content}</Dialog.Trigger><Dialog.Portal><Dialog.Overlay className="dialog-overlay"/><Dialog.Content className="dialog-content"><Dialog.Close className="dialog-close" aria-label="ปิด"><X/></Dialog.Close><Dialog.Title className="text-2xl">ติดต่อผ่าน{channel.name === 'โทรศัพท์' ? 'โทรศัพท์' : ` ${channel.name}`}</Dialog.Title><Dialog.Description className="mt-4 leading-8 text-muted">ช่องทางนี้กำลังอยู่ระหว่างการตั้งค่า กรุณากลับมาตรวจสอบอีกครั้ง</Dialog.Description><Dialog.Close className="gold-button mt-6">รับทราบ</Dialog.Close></Dialog.Content></Dialog.Portal></Dialog.Root>;
- })}</aside>;
-}
-const products = [
-  { name: 'รังนกแห้ง', thai: 'รังนกแห้ง · กล่องซิกเนเจอร์', number: '01', price: 5000, unit: 'กล่อง', image: productOne, badge: 'SIGNATURE COLLECTION', type: 'กล่องซิกเนเจอร์', description: 'เส้นรังนกคัดสรร จัดเรียงอย่างพิถีพิถัน สำหรับเตรียมในแบบที่คุณชอบ', detail: 'รังนกแห้งในกล่องทรงสี่เหลี่ยม สำหรับนำไปปรุงในแบบที่คุณชอบ สอบถามน้ำหนัก ราคา วิธีเตรียม และข้อมูลแหล่งที่มากับทางร้านได้ก่อนสั่งซื้อ' },
-  { name: 'ชุดของขวัญรังนก', thai: 'รังนกแห้ง · ชุดของขวัญ', number: '02', price: 2500, unit: 'ชุด', image: productTwo, badge: 'THE GIFT COLLECTION', type: 'ชุดของขวัญ', description: 'รังนกคัดสรรในกล่องทรงกลมผูกโบว์ พร้อมส่งต่อความรู้สึกดี ๆ ให้คนสำคัญ', detail: 'รังนกแห้งในกล่องทรงกลมผูกโบว์ เหมาะสำหรับมอบให้คนสำคัญ สอบถามน้ำหนัก ราคา และตัวเลือกบรรจุภัณฑ์ที่มีจำหน่ายกับทางร้าน' },
-  { name: 'รังนกคัดพรีเมี่ยม', thai: 'รังนกคัดพรีเมี่ยม · กล่องทรงสี่เหลี่ยม', number: '03', price: 3500, unit: 'กล่อง', image: premiumBox, badge: 'PREMIUM SELECTION', type: 'กล่องทรงสี่เหลี่ยม', description: 'รังนกคัดพรีเมี่ยมในกล่องใสทรงสี่เหลี่ยม เห็นเนื้อรังนกภายใน เหมาะสำหรับดูแลตัวเองหรือมอบเป็นของขวัญ', detail: 'รังนกคัดพรีเมี่ยมบรรจุในกล่องใสทรงสี่เหลี่ยม ราคา 3,500 บาทต่อกล่อง สอบถามน้ำหนัก วิธีเตรียม และสินค้าพร้อมจัดส่งกับทางร้านก่อนสั่งซื้อ' },
-  { name: 'รังนกคัดพรีเมี่ยม', thai: 'รังนกคัดพรีเมี่ยม · กล่องทรงกลม', number: '04', price: 7000, unit: 'กล่อง', image: premiumRound, badge: 'PREMIUM SELECTION', type: 'กล่องทรงกลม', description: 'รังนกคัดพรีเมี่ยมในกล่องใสทรงกลม จัดวางให้เห็นลวดลายและเส้นรังนกอย่างชัดเจน', detail: 'รังนกคัดพรีเมี่ยมบรรจุในกล่องใสทรงกลม ราคา 7,000 บาทต่อกล่อง สอบถามน้ำหนัก วิธีเตรียม และสินค้าพร้อมจัดส่งกับทางร้านก่อนสั่งซื้อ' },
+// Revalidate periodically so the page stays fresh even if an admin save's
+// on-demand revalidatePath('/') call is ever missed; saves themselves refresh
+// it immediately (see the admin API routes under src/app/api/admin).
+export const revalidate = 60;
+
+// Shown only if the database has no products yet (e.g. before `npm run seed`
+// has been run) or the database is unreachable — the page must never go
+// blank just because MongoDB is down.
+const FALLBACK_PRODUCTS: ProductData[] = [
+  { slug: '01', price: 5000, image: productOne.src, badge: 'SIGNATURE COLLECTION', translations: { th: dictionaries.th.products.items['01'], en: dictionaries.en.products.items['01'], zh: dictionaries.zh.products.items['01'] } },
+  { slug: '02', price: 2500, image: productTwo.src, badge: 'THE GIFT COLLECTION', translations: { th: dictionaries.th.products.items['02'], en: dictionaries.en.products.items['02'], zh: dictionaries.zh.products.items['02'] } },
+  { slug: '03', price: 3500, image: premiumBox.src, badge: 'PREMIUM SELECTION', translations: { th: dictionaries.th.products.items['03'], en: dictionaries.en.products.items['03'], zh: dictionaries.zh.products.items['03'] } },
+  { slug: '04', price: 7000, image: premiumRound.src, badge: 'PREMIUM SELECTION', translations: { th: dictionaries.th.products.items['04'], en: dictionaries.en.products.items['04'], zh: dictionaries.zh.products.items['04'] } },
 ];
-const faqs = [
- ['เลือกแบบไหนให้เหมาะกับคนรับ?', 'เลือกกล่องซิกเนเจอร์สำหรับการดูแลตัวเองในทุกวัน หรือชุดของขวัญสำหรับโอกาสพิเศษ หากไม่แน่ใจ สามารถพูดคุยกับเราเพื่อเลือกขนาดและรูปแบบที่เหมาะกับคุณได้'],
- ['ดูรายละเอียดสินค้าและราคาได้ที่ไหน?', 'กดดูรายละเอียดที่สินค้าที่สนใจ แล้วติดต่อทาง LINE เพื่อสอบถามขนาดบรรจุ ราคาปัจจุบัน และสินค้าพร้อมจัดส่งก่อนสั่งซื้อ'],
- ['ควรเตรียมและเก็บรักษารังนกอย่างไร?', 'วิธีเตรียมและเก็บรักษาขึ้นอยู่กับชนิดและรูปแบบสินค้า กรุณาสอบถามคำแนะนำสำหรับสินค้าที่เลือกจากทางร้าน และปฏิบัติตามข้อมูลบนฉลาก'],
- ['สั่งเป็นของขวัญได้หรือไม่?', 'สามารถสอบถามตัวเลือกชุดของขวัญ บรรจุภัณฑ์ และบริการที่มีในช่วงเวลานั้นกับทางร้าน ก่อนยืนยันคำสั่งซื้อ'],
-];
-export default function Home() {
- return <>
-  <header className="site-header"><div className="shell header-inner"><a href="#home" aria-label="Pete Bird’s Nest หน้าหลัก"><Photo box={[104,1,80,91]} className="logo" label="Pete Bird’s Nest"/></a><nav className="desktop-nav" aria-label="เมนูหลัก">{nav.map(([name,href]) => <a href={href} key={href}>{name}</a>)}</nav><div className="header-contact"><Contact>พูดคุยกับเรา</Contact></div><Dialog.Root><Dialog.Trigger className="mobile-menu" aria-label="เปิดเมนู"><Menu size={22}/></Dialog.Trigger><Dialog.Portal><Dialog.Overlay className="dialog-overlay"/><Dialog.Content className="dialog-content mobile-menu-panel"><Dialog.Title className="text-2xl text-gold">Pete Bird’s Nest</Dialog.Title><Dialog.Description className="mt-2 text-muted">ความใส่ใจจากธรรมชาติ</Dialog.Description><Dialog.Close className="dialog-close" aria-label="ปิดเมนู"><X/></Dialog.Close><nav className="mobile-nav">{nav.map(([name,href]) => <Dialog.Close asChild key={href}><a href={href}>{name}<ArrowUpRight size={16}/></a></Dialog.Close>)}</nav></Dialog.Content></Dialog.Portal></Dialog.Root></div></header>
-  <main>
-   <section id="home" className="hero" style={{backgroundImage:`url(${coverHero.src})`}}><div className="hero-fade"/><div className="shell hero-content"><p className="eyebrow"><span/> PREMIUM BIRD’S NEST</p><h1>รังนกแท้ คัดพิเศษ<br/><span className="gold-word">จากธรรมชาติ</span></h1><p className="hero-description">พีทซ์ รังนกแท้ คัดสรรอย่างพิถีพิถัน<br/>เพื่อช่วงเวลาดี ๆ ของคุณและครอบครัว</p><div className="hero-actions"><Contact>สั่งซื้อ / สอบถาม</Contact><a href="#products" className="outline-button">ดูสินค้า <ArrowRight size={17}/></a></div><div className="hero-features">{[[Leaf,'รังนกจากธรรมชาติ','คัดสรรอย่างใส่ใจ'],[ShieldCheck,'พิถีพิถันทุกขั้นตอน','ดูแลในทุกรายละเอียด'],[Gem,'ของขวัญที่มีความหมาย','เพื่อคนสำคัญของคุณ'],[Truck,'สอบถามการจัดส่ง','ให้เราช่วยดูแลคุณ']].map(([Icon,title,desc])=>{const I=Icon as typeof Leaf;return <div key={String(title)}><I size={29} strokeWidth={1.4}/><strong>{String(title)}</strong><span>{String(desc)}</span></div>;})}</div></div></section>
-   <section id="about" className="about-section" style={{ backgroundImage: `url(${aboutBackground.src})` }}><div className="shell about-grid"><div className="about-copy"><p className="eyebrow">ABOUT US</p><h2>รังนกแท้<br/>คัดสรรจากธรรมชาติ</h2><p className="section-description">เราใส่ใจตั้งแต่การคัดสรรรังนกไปจนถึงรายละเอียดในทุกกล่อง<br className="desktop-break"/> เพื่อให้คุณและครอบครัวได้ส่งต่อสิ่งดี ๆ จากธรรมชาติ</p><a href="#benefits" className="gold-button">รู้จักเราเพิ่มเติม <ArrowRight size={15}/></a></div></div></section>
-   <section id="products" className="collection-section"><div className="shell"><div className="section-heading"><div><p className="eyebrow">OUR PRODUCTS</p><h2>สินค้าของเรา</h2></div><p className="section-description">รังนกคัดสรรสำหรับดูแลตัวเอง และมอบให้คนสำคัญ</p></div><div className="shop-grid">{products.map(p=><article className="shop-card" id={`product-${p.number}`} key={p.number}>
- <div className="shop-image"><Image src={p.image} alt={p.thai} sizes="(max-width: 767px) 90vw, 45vw"/><span className="shop-badge">{p.badge}</span><span className="shop-edition">{p.number} / PETE</span></div>
- <div className="shop-body"><div className="shop-heading"><div><p className="shop-category">PREMIUM BIRD’S NEST</p><h3>{p.name}</h3></div><span className="shop-type">{p.type}</span></div><p className="shop-description">{p.description}</p>
- <div className="shop-price-row"><div><span className="shop-price-label">ราคา / {p.unit}</span><p className={`shop-price ${p.price === null ? 'price-pending' : ''}`}>{p.price === null ? 'สอบถามราคา' : <><span>฿</span>{p.price.toLocaleString('th-TH')}</>}</p></div><span className="shop-quality"><Leaf size={15}/> คัดสรรอย่างใส่ใจ</span></div>
- <div className="shop-actions"><Contact>สอบถาม / สั่งซื้อ</Contact><Dialog.Root><Dialog.Trigger className="shop-detail" aria-label={`ดูรายละเอียด ${p.thai}`}>รายละเอียด <ArrowUpRight size={17}/></Dialog.Trigger><Dialog.Portal><Dialog.Overlay className="dialog-overlay"/><Dialog.Content className="dialog-content"><Dialog.Close className="dialog-close" aria-label="ปิด"><X/></Dialog.Close><Image className="modal-image" src={p.image} alt={p.thai}/><Dialog.Title className="text-2xl">{p.name}</Dialog.Title><Dialog.Description className="mt-4 leading-8 text-muted">{p.detail}</Dialog.Description><p className="shop-modal-price">{p.price === null ? 'สอบถามราคากับทางร้าน' : `฿${p.price.toLocaleString('th-TH')} / ${p.unit}`}</p><div className="mt-6"><Contact>สอบถามสินค้านี้</Contact></div></Dialog.Content></Dialog.Portal></Dialog.Root></div></div>
- </article>)}</div><div className="collection-foot"><span>ทุกกล่อง เริ่มต้นจากความตั้งใจเดียวกัน</span><a href="#questions" className="text-link">ต้องการคำแนะนำในการเลือก? <ArrowRight size={16}/></a></div></div></section>
-   <section id="benefits" className="benefits-section"><Photo box={[0,1009,503,194]} className="benefits-photo" label="ถ้วยรังนกบนโต๊ะโทนครีมทอง"/><div className="benefits-copy"><p className="eyebrow">A LITTLE CARE, EVERY DAY</p><h2>คุณค่าจากความใส่ใจ</h2><p className="benefits-description">สิ่งดี ๆ ที่เลือกให้ตัวเอง และคนที่คุณรัก</p><div className="benefit-grid">{[[ShieldCheck,'ใส่ใจคุณภาพ','พิถีพิถันทุกขั้นตอน'],[Flower2,'คัดสรรจากธรรมชาติ','เรียบง่ายและมีคุณค่า'],[MoonStar,'ช่วงเวลาดี ๆ','พักและดูแลตัวเอง'],[Heart,'ส่งต่อความห่วงใย','สำหรับคนสำคัญ']].map(([Icon,title,desc])=>{const I=Icon as typeof Leaf;return <div key={String(title)}><span className="benefit-icon"><I size={30} strokeWidth={1.4}/></span><strong>{String(title)}</strong><p>{String(desc)}</p></div>;})}</div></div></section>
-   <section id="questions" className="faq-section"><div className="shell faq-grid"><div><p className="eyebrow">A LITTLE MORE TO KNOW</p><h2>คำถามที่พบบ่อย</h2><p className="section-description">คำตอบเล็ก ๆ ที่ช่วยให้คุณเลือกได้ง่ายขึ้น</p><a href="#contact" className="text-link">มีคำถามเพิ่มเติม? <ArrowUpRight size={16}/></a></div><Accordion.Root type="single" collapsible className="faq-list">{faqs.map(([q,a],i)=><Accordion.Item value={`q${i}`} key={q}><Accordion.Header><Accordion.Trigger className="faq-trigger"><span className="faq-number">0{i+1}</span>{q}<Plus size={18}/></Accordion.Trigger></Accordion.Header><Accordion.Content className="faq-content"><p>{a}</p></Accordion.Content></Accordion.Item>)}</Accordion.Root></div></section>
-   <section id="contact" className="contact-section"><div className="shell"><p className="eyebrow">LET’S MAKE SOMEONE’S DAY</p><div className="contact-grid"><h2>สัมผัสคุณค่าจากธรรมชาติ<br/><span>เพื่อคุณและคนสำคัญ</span></h2><div><p>ให้เราช่วยเลือกสิ่งที่เหมาะกับคุณ<br/>พูดคุยกับเราได้ผ่านทาง LINE</p><Contact>เริ่มต้นความใส่ใจ <ArrowUpRight size={17}/></Contact>{phone&&<a className="phone-link" href={`tel:${phone.replace(/[^+\d]/g,'')}`}><Phone size={15}/>{phone}</a>}</div><figure className="contact-qr"><Dialog.Root><Dialog.Trigger className="contact-qr-trigger" aria-label="ขยาย QR Code LINE"><Image src={lineQrCode} alt="QR Code สำหรับติดต่อผ่าน LINE" width={144} height={144} sizes="144px"/></Dialog.Trigger><Dialog.Portal><Dialog.Overlay className="dialog-overlay"/><Dialog.Content className="dialog-content qr-dialog"><Dialog.Close className="dialog-close" aria-label="ปิด"><X/></Dialog.Close><Dialog.Title className="text-xl">สแกนเพื่อแชทผ่าน LINE</Dialog.Title><Dialog.Description className="mt-2 text-sm text-muted">เปิด LINE แล้วสแกน QR Code เพื่อติดต่อทางร้าน</Dialog.Description><Image className="qr-enlarged" src={lineQrCode} alt="QR Code LINE ของทางร้าน ขนาดใหญ่" width={340} height={340} sizes="(max-width: 480px) 80vw, 340px"/>{lineUrl && <Contact>เปิดแชท LINE</Contact>}</Dialog.Content></Dialog.Portal></Dialog.Root><figcaption>สแกนเพื่อแชทผ่าน LINE<span>แตะภาพเพื่อขยาย QR Code</span></figcaption></figure></div><div className="contact-bottom"><span>PETE BIRD’S NEST</span><span>Thoughtfully selected. Beautifully given.</span></div></div></section>
-  </main><FloatingSocial/><footer className="shell footer"><a href="#home">Pete<span>BIRD’S NEST</span></a><p>© Pete Bird’s Nest · ความใส่ใจจากธรรมชาติ</p><a href="#home" className="back-top">กลับด้านบน <ArrowUpRight size={15}/></a></footer>
- </>;
+
+type RawProduct = { slug: string; price: number | null; image: string; badge: string; order: number; translations: Record<Lang, ProductData['translations']['th']> };
+type RawContent = { key: SiteContentKey; th: unknown; en: unknown; zh: unknown };
+type RawContact = { lineUrl?: string | null; facebookUrl?: string | null; phone?: string | null; lineQrImage?: string | null };
+
+async function loadFromDB(): Promise<{ products: RawProduct[]; content: RawContent[]; contact: RawContact | null }> {
+  try {
+    await connectDB();
+    const [products, content, contact] = await Promise.all([
+      Product.find({ isPublished: true }).sort({ order: 1 }).lean<RawProduct[]>(),
+      SiteContent.find().lean<RawContent[]>(),
+      ContactInfo.findById('contact').lean<RawContact | null>(),
+    ]);
+    return { products, content, contact };
+  } catch (err) {
+    console.error('[home] MongoDB unavailable, serving built-in fallback content:', err);
+    return { products: [], content: [], contact: null };
+  }
+}
+
+function buildDicts(content: RawContent[]): Record<Lang, Dict> {
+  const overrides = new Map(content.map((doc) => [doc.key, doc]));
+  const result = {} as Record<Lang, Dict>;
+  for (const lang of LANGS) {
+    const base = dictionaries[lang];
+    const merged = { ...base } as Record<string, unknown>;
+    for (const key of SITE_CONTENT_KEYS) {
+      const doc = overrides.get(key);
+      if (!doc) continue;
+      const value = doc[lang];
+      // 'products' in SiteContent only holds UI strings (no per-item `items`,
+      // which lives on the Product documents instead) — keep the static
+      // `items` around so the merged object still satisfies the Dict type.
+      merged[key] = key === 'products' ? { ...(base.products as object), ...(value as object) } : value;
+    }
+    result[lang] = merged as Dict;
+  }
+  return result;
+}
+
+function buildProducts(products: RawProduct[]): ProductData[] {
+  if (products.length === 0) return FALLBACK_PRODUCTS;
+  return products.map((p) => ({ slug: p.slug, price: p.price, image: p.image, badge: p.badge, translations: p.translations }));
+}
+
+export default async function Page() {
+  const { products, content, contact } = await loadFromDB();
+
+  const dicts = buildDicts(content);
+  const productData = buildProducts(products);
+  const contactData: ContactData = {
+    lineUrl: contact?.lineUrl || process.env.NEXT_PUBLIC_LINE_URL || null,
+    facebookUrl: contact?.facebookUrl || process.env.NEXT_PUBLIC_FACEBOOK_URL || null,
+    phone: contact?.phone || process.env.NEXT_PUBLIC_CONTACT_PHONE || null,
+    lineQrImage: contact?.lineQrImage || null,
+  };
+
+  return <HomeClient dicts={dicts} products={productData} contact={contactData} />;
 }
