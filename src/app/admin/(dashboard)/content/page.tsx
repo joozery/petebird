@@ -1,0 +1,137 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { dictionaries, type Lang } from '@/i18n/dictionaries';
+import { DynamicForm } from './DynamicForm';
+
+const SECTIONS: { key: string; label: string }[] = [
+  { key: 'nav', label: 'เมนูนำทาง' },
+  { key: 'common', label: 'ข้อความทั่วไป (ปุ่ม, dialog)' },
+  { key: 'hero', label: 'หน้าแรก (Hero)' },
+  { key: 'about', label: 'เกี่ยวกับเรา' },
+  { key: 'nutrition', label: 'ประโยชน์ของรังนก' },
+  { key: 'products', label: 'ส่วนสินค้า (ข้อความ UI)' },
+  { key: 'benefits', label: 'ความใส่ใจ' },
+  { key: 'faq', label: 'คำถามที่พบบ่อย' },
+  { key: 'contact', label: 'ติดต่อเรา' },
+  { key: 'footer', label: 'ท้ายเว็บ' },
+];
+
+const LANG_TABS: { code: Lang; label: string }[] = [
+  { code: 'th', label: 'ไทย' },
+  { code: 'en', label: 'English' },
+  { code: 'zh', label: '中文' },
+];
+
+function fallbackFor(key: string) {
+  const out: Record<Lang, unknown> = { th: undefined, en: undefined, zh: undefined };
+  for (const lang of ['th', 'en', 'zh'] as Lang[]) {
+    const dict = dictionaries[lang] as unknown as Record<string, unknown>;
+    const section = dict[key];
+    if (key === 'products' && section && typeof section === 'object') {
+      const { items: _items, ...rest } = section as Record<string, unknown>;
+      out[lang] = rest;
+    } else {
+      out[lang] = section;
+    }
+  }
+  return out;
+}
+
+export default function AdminContentPage() {
+  const [activeKey, setActiveKey] = useState(SECTIONS[0].key);
+  const [tab, setTab] = useState<Lang>('th');
+  const [data, setData] = useState<Record<Lang, unknown> | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    setData(null);
+    setMessage(null);
+    (async () => {
+      const res = await fetch(`/api/admin/content/${activeKey}`);
+      const result = await res.json();
+      if (result.content) {
+        setData({ th: result.content.th, en: result.content.en, zh: result.content.zh });
+      } else {
+        setData(fallbackFor(activeKey));
+      }
+    })();
+  }, [activeKey]);
+
+  async function save() {
+    if (!data) return;
+    setSaving(true);
+    setMessage(null);
+    try {
+      const res = await fetch(`/api/admin/content/${activeKey}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'บันทึกไม่สำเร็จ');
+      setMessage('บันทึกแล้ว — หน้าเว็บจะอัปเดตภายในไม่กี่วินาที');
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'บันทึกไม่สำเร็จ');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div>
+      <h1 className="text-2xl text-[#302a22]">ข้อความหน้าเว็บ</h1>
+      <p className="mt-1 text-sm text-[#827b71]">แก้ไขข้อความทั้ง 3 ภาษา แต่ละส่วนของหน้าเว็บ</p>
+
+      <div className="mt-6 flex gap-6">
+        <aside className="w-56 shrink-0 space-y-1">
+          {SECTIONS.map((s) => (
+            <button
+              key={s.key}
+              onClick={() => setActiveKey(s.key)}
+              className={`block w-full text-left rounded-lg px-3 py-2 text-sm ${
+                activeKey === s.key ? 'bg-[#f3ead9] text-[#a77a3b] font-medium' : 'text-[#5c5244] hover:bg-white'
+              }`}
+            >
+              {s.label}
+            </button>
+          ))}
+        </aside>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex gap-1 border-b border-[#e9e2d6]">
+            {LANG_TABS.map((l) => (
+              <button
+                key={l.code}
+                onClick={() => setTab(l.code)}
+                className={`px-4 py-2 text-sm -mb-px border-b-2 ${tab === l.code ? 'border-[#a77a3b] text-[#a77a3b]' : 'border-transparent text-[#827b71]'}`}
+              >
+                {l.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-4 bg-white border border-[#e9e2d6] rounded-xl p-5">
+            {data === null ? (
+              <p className="text-sm text-[#827b71]">กำลังโหลด...</p>
+            ) : (
+              <DynamicForm value={data[tab]} onChange={(next) => setData({ ...data, [tab]: next })} />
+            )}
+          </div>
+
+          <div className="mt-4 flex items-center gap-4">
+            <button
+              onClick={save}
+              disabled={saving || data === null}
+              className="rounded-lg bg-[#a77a3b] text-white px-5 py-2.5 text-sm font-medium hover:bg-[#8a622b] disabled:opacity-60"
+            >
+              {saving ? 'กำลังบันทึก...' : 'บันทึก'}
+            </button>
+            {message && <p className="text-sm text-[#5c5244]">{message}</p>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
