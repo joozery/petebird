@@ -2,16 +2,21 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import { AlertTriangle, CheckCircle2, ImagePlus, MessageCircle, Phone, QrCode, Share2, Upload } from 'lucide-react';
 
 type ContactState = { lineUrl: string; facebookUrl: string; phone: string; lineQrImage: string };
 const empty: ContactState = { lineUrl: '', facebookUrl: '', phone: '', lineQrImage: '' };
+
+const input = 'mt-1.5 w-full rounded-lg border border-[#e5e3dd] bg-white pl-10 pr-3 py-2.5 text-sm text-[#1f1b16] outline-none focus:border-[#a77a3b] focus:ring-2 focus:ring-[#a77a3b1a] transition-shadow';
+const label = 'block text-[13px] font-medium text-[#50493f]';
+const card = 'bg-white border border-[#ededed] rounded-2xl p-6';
 
 export default function AdminContactPage() {
   const [form, setForm] = useState<ContactState>(empty);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [status, setStatus] = useState<{ type: 'ok' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -47,7 +52,7 @@ export default function AdminContactPage() {
 
   async function save() {
     setSaving(true);
-    setMessage(null);
+    setStatus(null);
     try {
       const res = await fetch('/api/admin/contact', {
         method: 'PATCH',
@@ -56,47 +61,66 @@ export default function AdminContactPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'บันทึกไม่สำเร็จ');
-      setMessage('บันทึกแล้ว');
+      setStatus({ type: 'ok', text: 'บันทึกแล้ว' });
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : 'บันทึกไม่สำเร็จ');
+      setStatus({ type: 'error', text: err instanceof Error ? err.message : 'บันทึกไม่สำเร็จ' });
     } finally {
       setSaving(false);
     }
   }
 
-  const input = 'mt-1 w-full rounded-lg border border-[#e0d4bf] px-3 py-2 text-sm outline-none focus:border-[#a87c3c]';
-  const label = 'block text-sm text-[#5c5244]';
-
-  if (loading) return <p className="text-sm text-[#827b71]">กำลังโหลด...</p>;
+  if (loading) {
+    return (
+      <div className="max-w-xl space-y-4">
+        <div className="h-64 rounded-2xl bg-[#f7f6f3] animate-pulse" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-xl">
-      <h1 className="text-2xl text-[#302a22]">ข้อมูลติดต่อ</h1>
-      <p className="mt-1 text-sm text-[#827b71]">LINE, Facebook, เบอร์โทร และ QR code ที่แสดงบนหน้าเว็บ</p>
+      <h1 className="text-[22px] font-semibold text-[#1f1b16]">ข้อมูลติดต่อ</h1>
+      <p className="mt-1 text-sm text-[#8a7f6d]">LINE, Facebook, เบอร์โทร และ QR code ที่แสดงบนหน้าเว็บ</p>
 
-      <div className="mt-6 bg-white border border-[#e9e2d6] rounded-xl p-5 space-y-4">
+      <div className={`mt-6 ${card} space-y-5`}>
         <label className={label}>
           LINE URL
-          <input className={input} placeholder="https://line.me/ti/p/xxxxx" value={form.lineUrl} onChange={(e) => setForm({ ...form, lineUrl: e.target.value })} />
+          <div className="relative">
+            <MessageCircle size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#a79e8c]" />
+            <input className={input} placeholder="https://line.me/ti/p/xxxxx" value={form.lineUrl} onChange={(e) => setForm({ ...form, lineUrl: e.target.value })} />
+          </div>
         </label>
         <label className={label}>
           Facebook Page URL
-          <input className={input} placeholder="https://facebook.com/xxxxx" value={form.facebookUrl} onChange={(e) => setForm({ ...form, facebookUrl: e.target.value })} />
+          <div className="relative">
+            <Share2 size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#a79e8c]" />
+            <input className={input} placeholder="https://facebook.com/xxxxx" value={form.facebookUrl} onChange={(e) => setForm({ ...form, facebookUrl: e.target.value })} />
+          </div>
         </label>
         <label className={label}>
           เบอร์โทร
-          <input className={input} placeholder="06-2595-9749" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+          <div className="relative">
+            <Phone size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#a79e8c]" />
+            <input className={input} placeholder="06-2595-9749" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+          </div>
         </label>
 
         <div>
-          <p className={label}>QR Code LINE</p>
-          <div className="mt-2 flex items-center gap-4">
-            {form.lineQrImage && (
-              <div className="relative w-24 h-24 rounded-lg overflow-hidden border border-[#e9e2d6] bg-white">
+          <p className={`${label} flex items-center gap-1.5`}>
+            <QrCode size={14} className="text-[#a79e8c]" /> QR Code LINE
+          </p>
+          <div className="mt-2 flex items-center gap-5">
+            {form.lineQrImage ? (
+              <div className="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden border border-[#ededed] bg-[#fafafa]">
                 <Image src={form.lineQrImage} alt="" fill sizes="96px" className="object-contain" />
               </div>
+            ) : (
+              <div className="w-24 h-24 shrink-0 rounded-xl border border-dashed border-[#d9d5cb] bg-[#fafafa] flex items-center justify-center text-[#c2bca9]">
+                <ImagePlus size={22} />
+              </div>
             )}
-            <label className="text-sm text-[#a77a3b] cursor-pointer hover:underline">
+            <label className="inline-flex items-center gap-2 rounded-lg border border-[#e5e3dd] px-4 py-2.5 text-sm font-medium text-[#50493f] cursor-pointer hover:bg-[#f5f4f2] transition-colors">
+              <Upload size={14} />
               {uploading ? 'กำลังอัปโหลด...' : form.lineQrImage ? 'เปลี่ยนรูป' : 'อัปโหลดรูป'}
               <input type="file" accept="image/*" className="hidden" onChange={onUpload} disabled={uploading} />
             </label>
@@ -104,11 +128,21 @@ export default function AdminContactPage() {
         </div>
       </div>
 
-      <div className="mt-4 flex items-center gap-4">
-        <button onClick={save} disabled={saving} className="rounded-lg bg-[#a77a3b] text-white px-5 py-2.5 text-sm font-medium hover:bg-[#8a622b] disabled:opacity-60">
+      {status && (
+        <div
+          className={`mt-4 flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm ${
+            status.type === 'ok' ? 'bg-[#eef7ef] border-[#cde7cf] text-[#2f6b38]' : 'bg-[#fdf0ee] border-[#f3cfc8] text-[#a83a2a]'
+          }`}
+        >
+          {status.type === 'ok' ? <CheckCircle2 size={15} className="shrink-0" /> : <AlertTriangle size={15} className="shrink-0" />}
+          {status.text}
+        </div>
+      )}
+
+      <div className="mt-4">
+        <button onClick={save} disabled={saving} className="rounded-lg bg-[#1f1b16] text-white px-5 py-2.5 text-sm font-medium hover:bg-[#33291c] disabled:opacity-60 transition-colors">
           {saving ? 'กำลังบันทึก...' : 'บันทึก'}
         </button>
-        {message && <p className="text-sm text-[#5c5244]">{message}</p>}
       </div>
     </div>
   );

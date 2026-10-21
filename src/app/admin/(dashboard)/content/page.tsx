@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { CheckCircle2, AlertTriangle } from 'lucide-react';
 import { dictionaries, type Lang } from '@/i18n/dictionaries';
 import { DynamicForm } from './DynamicForm';
 
@@ -43,11 +44,11 @@ export default function AdminContentPage() {
   const [tab, setTab] = useState<Lang>('th');
   const [data, setData] = useState<Record<Lang, unknown> | null>(null);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [status, setStatus] = useState<{ type: 'ok' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
     setData(null);
-    setMessage(null);
+    setStatus(null);
     (async () => {
       const res = await fetch(`/api/admin/content/${activeKey}`);
       const result = await res.json();
@@ -62,7 +63,7 @@ export default function AdminContentPage() {
   async function save() {
     if (!data) return;
     setSaving(true);
-    setMessage(null);
+    setStatus(null);
     try {
       const res = await fetch(`/api/admin/content/${activeKey}`, {
         method: 'PATCH',
@@ -71,9 +72,9 @@ export default function AdminContentPage() {
       });
       const result = await res.json();
       if (!res.ok) throw new Error(result.error || 'บันทึกไม่สำเร็จ');
-      setMessage('บันทึกแล้ว — หน้าเว็บจะอัปเดตภายในไม่กี่วินาที');
+      setStatus({ type: 'ok', text: 'บันทึกแล้ว — หน้าเว็บจะอัปเดตภายในไม่กี่วินาที' });
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : 'บันทึกไม่สำเร็จ');
+      setStatus({ type: 'error', text: err instanceof Error ? err.message : 'บันทึกไม่สำเร็จ' });
     } finally {
       setSaving(false);
     }
@@ -81,17 +82,17 @@ export default function AdminContentPage() {
 
   return (
     <div>
-      <h1 className="text-2xl text-[#302a22]">ข้อความหน้าเว็บ</h1>
-      <p className="mt-1 text-sm text-[#827b71]">แก้ไขข้อความทั้ง 3 ภาษา แต่ละส่วนของหน้าเว็บ</p>
+      <h1 className="text-[22px] font-semibold text-[#1f1b16]">ข้อความหน้าเว็บ</h1>
+      <p className="mt-1 text-sm text-[#8a7f6d]">แก้ไขข้อความทั้ง 3 ภาษา แต่ละส่วนของหน้าเว็บ</p>
 
       <div className="mt-6 flex gap-6">
-        <aside className="w-56 shrink-0 space-y-1">
+        <aside className="w-56 shrink-0 space-y-0.5">
           {SECTIONS.map((s) => (
             <button
               key={s.key}
               onClick={() => setActiveKey(s.key)}
-              className={`block w-full text-left rounded-lg px-3 py-2 text-sm ${
-                activeKey === s.key ? 'bg-[#f3ead9] text-[#a77a3b] font-medium' : 'text-[#5c5244] hover:bg-white'
+              className={`block w-full text-left rounded-lg px-3 py-2.5 text-[13.5px] transition-colors ${
+                activeKey === s.key ? 'bg-[#1f1b16] text-white font-medium' : 'text-[#50493f] hover:bg-[#f5f4f2]'
               }`}
             >
               {s.label}
@@ -100,35 +101,50 @@ export default function AdminContentPage() {
         </aside>
 
         <div className="flex-1 min-w-0">
-          <div className="flex gap-1 border-b border-[#e9e2d6]">
-            {LANG_TABS.map((l) => (
-              <button
-                key={l.code}
-                onClick={() => setTab(l.code)}
-                className={`px-4 py-2 text-sm -mb-px border-b-2 ${tab === l.code ? 'border-[#a77a3b] text-[#a77a3b]' : 'border-transparent text-[#827b71]'}`}
-              >
-                {l.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="mt-4 bg-white border border-[#e9e2d6] rounded-xl p-5">
-            {data === null ? (
-              <p className="text-sm text-[#827b71]">กำลังโหลด...</p>
-            ) : (
-              <DynamicForm value={data[tab]} onChange={(next) => setData({ ...data, [tab]: next })} />
-            )}
-          </div>
-
-          <div className="mt-4 flex items-center gap-4">
+          <div className="flex items-center justify-between">
+            <div className="flex gap-1 bg-[#f5f4f2] rounded-lg p-1">
+              {LANG_TABS.map((l) => (
+                <button
+                  key={l.code}
+                  onClick={() => setTab(l.code)}
+                  className={`px-4 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                    tab === l.code ? 'bg-white text-[#1f1b16] shadow-[0_1px_2px_rgba(0,0,0,0.06)]' : 'text-[#8a7f6d]'
+                  }`}
+                >
+                  {l.label}
+                </button>
+              ))}
+            </div>
             <button
               onClick={save}
               disabled={saving || data === null}
-              className="rounded-lg bg-[#a77a3b] text-white px-5 py-2.5 text-sm font-medium hover:bg-[#8a622b] disabled:opacity-60"
+              className="rounded-lg bg-[#1f1b16] text-white px-5 py-2.5 text-sm font-medium hover:bg-[#33291c] disabled:opacity-60 transition-colors"
             >
               {saving ? 'กำลังบันทึก...' : 'บันทึก'}
             </button>
-            {message && <p className="text-sm text-[#5c5244]">{message}</p>}
+          </div>
+
+          {status && (
+            <div
+              className={`mt-3 flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm ${
+                status.type === 'ok' ? 'bg-[#eef7ef] border-[#cde7cf] text-[#2f6b38]' : 'bg-[#fdf0ee] border-[#f3cfc8] text-[#a83a2a]'
+              }`}
+            >
+              {status.type === 'ok' ? <CheckCircle2 size={15} className="shrink-0" /> : <AlertTriangle size={15} className="shrink-0" />}
+              {status.text}
+            </div>
+          )}
+
+          <div className="mt-4 bg-white border border-[#ededed] rounded-2xl p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+            {data === null ? (
+              <div className="space-y-3">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="h-10 rounded-lg bg-[#f7f6f3] animate-pulse" />
+                ))}
+              </div>
+            ) : (
+              <DynamicForm value={data[tab]} onChange={(next) => setData({ ...data, [tab]: next })} />
+            )}
           </div>
         </div>
       </div>
