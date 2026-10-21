@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "seed": "tsx scripts/seed.ts"
   },
   "keywords": [],
   "author": "",
@@ -14,7 +15,11 @@
   "private": true,
   "dependencies": {
     "@fontsource-variable/noto-sans-thai": "^5.3.0",
+    "bcryptjs": "^3.0.3",
+    "flag-icons": "^7.6.0",
+    "jose": "^6.2.13",
     "lucide-react": "^1.57.0",
+    "mongoose": "^9.11.2",
     "next": "^16.4.1",
     "radix-ui": "^1.8.1",
     "react": "^19.3.1",
@@ -22,10 +27,13 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^26.6.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "dotenv": "^18.0.8",
     "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   }
 }
