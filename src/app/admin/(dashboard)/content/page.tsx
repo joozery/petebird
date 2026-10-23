@@ -24,6 +24,8 @@ const LANG_TABS: { code: Lang; label: string }[] = [
   { code: 'zh', label: '中文' },
 ];
 
+const isPlainObject = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
+
 function fallbackFor(key: string) {
   const out: Record<Lang, unknown> = { th: undefined, en: undefined, zh: undefined };
   for (const lang of ['th', 'en', 'zh'] as Lang[]) {
@@ -52,10 +54,18 @@ export default function AdminContentPage() {
     (async () => {
       const res = await fetch(`/api/admin/content/${activeKey}`);
       const result = await res.json();
+      const fallback = fallbackFor(activeKey);
       if (result.content) {
-        setData({ th: result.content.th, en: result.content.en, zh: result.content.zh });
+        // Layer saved content over the built-in copy so fields added after this
+        // section was last saved (e.g. nutrition posters) still show up here.
+        const withDefaults = (lang: Lang) => {
+          const saved = result.content[lang];
+          const base = fallback[lang];
+          return isPlainObject(base) && isPlainObject(saved) ? { ...base, ...saved } : saved;
+        };
+        setData({ th: withDefaults('th'), en: withDefaults('en'), zh: withDefaults('zh') });
       } else {
-        setData(fallbackFor(activeKey));
+        setData(fallback);
       }
     })();
   }, [activeKey]);
