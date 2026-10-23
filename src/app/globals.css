@@ -235,10 +235,20 @@ body{background:#fff;color:#2d251c}.shell{max-width:1240px;padding-inline:48px}.
 .sialic-number { flex-shrink:0; width:30px; height:30px; border-radius:50%; background:#fcfaf6; border:1px solid #d8c7a8; display:grid; place-items:center; font-size:12px; font-weight:500; color:#a87c3c; }
 .sialic-item strong { display:block; font-size:13.5px; font-weight:500; line-height:1.6; color:#302a22; }
 .sialic-item p { margin-top:4px; font-size:12px; line-height:1.85; color:#827b71; }
+.nutrition-posters { display:grid; grid-template-columns:repeat(2,1fr); gap:28px; margin-top:40px; }
+.nutrition-posters.single { grid-template-columns:minmax(0,560px); justify-content:center; }
+.nutrition-poster { position:relative; display:block; padding:0; border:0; background:none; border-radius:20px; overflow:hidden; box-shadow:0 14px 40px #6b481214; cursor:zoom-in; transition:transform .3s, box-shadow .3s; }
+.nutrition-poster img { display:block; width:100%; height:auto; }
+.nutrition-poster:hover { transform:translateY(-4px); box-shadow:0 20px 50px #6b481222; }
+.nutrition-poster-zoom { position:absolute; right:14px; bottom:14px; width:36px; height:36px; border-radius:50%; display:grid; place-items:center; background:#fffaf1e8; color:#a87c3c; box-shadow:0 4px 14px #6b481218; }
+.poster-lightbox { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:50; width:min(calc(100vw - 24px), calc(100dvh - 24px), 1040px); border-radius:14px; overflow:hidden; box-shadow:0 30px 100px #24190f50; }
+.poster-lightbox img { display:block; width:100%; height:auto; }
 @media(max-width:1100px) { .sialic-block { padding:34px 28px; } }
 @media(max-width:900px) { .nutrition-grid { grid-template-columns:1fr 1fr; } .sialic-grid { grid-template-columns:1fr; } }
 @media(max-width:767px) {
  .nutrition-section { padding-block:50px; }
+ .nutrition-posters, .nutrition-posters.single { grid-template-columns:1fr; gap:18px; margin-top:28px; }
+ .nutrition-poster { border-radius:16px; }
  .nutrition-grid { grid-template-columns:1fr; gap:16px; margin-top:28px; }
  .nutrition-card { padding:26px 22px; }
  .nutrition-source { font-size:10px; line-height:1.85; }
@@ -246,4 +256,14 @@ body{background:#fff;color:#2d251c}.shell{max-width:1240px;padding-inline:48px}.
  .sialic-title { font-size:19px; }
  .sialic-intro { font-size:12px; line-height:1.95; }
  .sialic-grid { grid-template-columns:1fr; gap:18px; margin-top:16px; }
+}
+
+/* Navbar logo: the emblem logo is portrait, so the header grows a little to keep "Pete" legible. */
+html { scroll-padding-top:88px; }
+.header-inner { height:80px; }
+.logo { height:64px; width:auto; }
+@media(max-width:767px) {
+ html { scroll-padding-top:74px; }
+ .header-inner { height:64px; }
+ .logo { height:50px; width:auto; }
 }

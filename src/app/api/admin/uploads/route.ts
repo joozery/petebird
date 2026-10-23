@@ -4,7 +4,7 @@ import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { requireRole } from '@/lib/auth';
 
-const ALLOWED_FOLDERS = ['products', 'qr', 'misc'] as const;
+const ALLOWED_FOLDERS = ['products', 'qr', 'content', 'misc'] as const;
 const MAX_BYTES = 5 * 1024 * 1024; // 5MB
 const EXT_BY_MIME: Record<string, string> = {
   'image/png': '.png',

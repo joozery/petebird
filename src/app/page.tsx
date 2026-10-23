@@ -46,6 +46,8 @@ async function loadFromDB(): Promise<{ products: RawProduct[]; content: RawConte
   }
 }
 
+const isPlainObject = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
+
 function buildDicts(content: RawContent[]): Record<Lang, Dict> {
   const overrides = new Map(content.map((doc) => [doc.key, doc]));
   const result = {} as Record<Lang, Dict>;
@@ -56,10 +58,11 @@ function buildDicts(content: RawContent[]): Record<Lang, Dict> {
       const doc = overrides.get(key);
       if (!doc) continue;
       const value = doc[lang];
-      // 'products' in SiteContent only holds UI strings (no per-item `items`,
-      // which lives on the Product documents instead) — keep the static
-      // `items` around so the merged object still satisfies the Dict type.
-      merged[key] = key === 'products' ? { ...(base.products as object), ...(value as object) } : value;
+      // Object sections are layered over the built-in copy so fields added to
+      // the dictionaries after a section was saved (e.g. nutrition posters)
+      // still get their defaults. This also keeps the static `products.items`,
+      // which SiteContent never holds (they live on the Product documents).
+      merged[key] = isPlainObject(base[key]) && isPlainObject(value) ? { ...base[key], ...value } : value;
     }
     result[lang] = merged as Dict;
   }
