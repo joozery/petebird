@@ -7,7 +7,7 @@ import { AlertTriangle, CheckCircle2, ImagePlus, MessageCircle, Phone, QrCode, S
 type ContactState = { lineUrl: string; facebookUrl: string; phone: string; lineQrImage: string };
 const empty: ContactState = { lineUrl: '', facebookUrl: '', phone: '', lineQrImage: '' };
 
-const input = 'mt-1.5 w-full rounded-lg border border-[#e5e3dd] bg-white pl-10 pr-3 py-2.5 text-sm text-[#1f1b16] outline-none focus:border-[#a77a3b] focus:ring-2 focus:ring-[#a77a3b1a] transition-shadow';
+const input = 'mt-1.5 w-full rounded-lg border border-[#e5e3dd] bg-white pl-10 pr-3 py-2.5 text-sm text-[#1f1b16] outline-none focus:border-[#b8892c] focus:ring-2 focus:ring-[#b8892c1a] transition-shadow';
 const label = 'block text-[13px] font-medium text-[#50493f]';
 const card = 'bg-white border border-[#ededed] rounded-2xl p-6';
 

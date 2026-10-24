@@ -6,7 +6,7 @@ import aboutBackground from '@/assets/cover/about-reference.png';
 import defaultLineQr from '@/assets/cover/qrcodeline.png';
 import logo from '../../public/logo-nav.png';
 import { Accordion, Dialog } from 'radix-ui';
-import { ArrowRight, Menu, X, Leaf, ShieldCheck, Gem, Phone, MessageCircle, ArrowUpRight, Plus, Truck, Heart, MoonStar, Flower2, Dumbbell, FlaskConical, Sparkles, ZoomIn } from 'lucide-react';
+import { ArrowRight, Menu, X, Leaf, ShieldCheck, Gem, Phone, MessageCircle, ArrowUpRight, Plus, Truck, Heart, MoonStar, Flower2, ZoomIn } from 'lucide-react';
 import { LanguageProvider, useLanguage, type ContactInfo } from '@/i18n/LanguageProvider';
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher';
 import type { Dict, Lang } from '@/i18n/dictionaries';
@@ -24,7 +24,6 @@ export type ProductData = {
 
 const heroIcons = [Leaf, ShieldCheck, Gem, Truck];
 const benefitIcons = [ShieldCheck, Flower2, MoonStar, Heart];
-const nutritionIcons = [Dumbbell, FlaskConical, Sparkles];
 
 function Photo({ box, className = '', label }: { box: [number, number, number, number]; className?: string; label: string }) {
   const [x, y, w, h] = box;
@@ -56,7 +55,6 @@ function FloatingSocial() {
 function Home({ products }: { products: ProductData[] }) {
  const { t, lang, contact } = useLanguage();
  const price = (value: number) => value.toLocaleString(t.locale);
- const posters = [{ src: t.nutrition.benefitsPoster, alt: t.nutrition.title }, { src: t.nutrition.sialicPoster, alt: t.nutrition.sialicTitle }].filter(p => p.src);
  const lineQrSrc = contact.lineQrImage || defaultLineQr.src;
  return <>
   <header className="site-header"><div className="shell header-inner"><a href="#home" aria-label={t.common.homeAria} className="logo-link"><Image src={logo} alt="Pete Bird’s Nest" className="logo" sizes="(max-width: 767px) 40px, 50px" priority/></a><nav className="desktop-nav" aria-label={t.common.menu}>{navHrefs.map((href,i) => <a href={href} key={href}>{t.nav[i]}</a>)}</nav><div className="header-contact"><LanguageSwitcher className="header-lang"/><Contact>{t.common.talkToUs}</Contact></div><Dialog.Root><Dialog.Trigger className="mobile-menu" aria-label={t.common.openMenu}><Menu size={22}/></Dialog.Trigger><Dialog.Portal><Dialog.Overlay className="dialog-overlay"/><Dialog.Content className="dialog-content mobile-menu-panel"><Dialog.Title className="text-2xl text-gold">Pete Bird’s Nest</Dialog.Title><Dialog.Description className="mt-2 text-muted">{t.common.tagline}</Dialog.Description><Dialog.Close className="dialog-close" aria-label={t.common.closeMenu}><X/></Dialog.Close><nav className="mobile-nav">{navHrefs.map((href,i) => <Dialog.Close asChild key={href}><a href={href}>{t.nav[i]}<ArrowUpRight size={16}/></a></Dialog.Close>)}</nav><LanguageSwitcher className="mobile-lang"/></Dialog.Content></Dialog.Portal></Dialog.Root></div></header>
@@ -65,19 +63,9 @@ function Home({ products }: { products: ProductData[] }) {
    <section id="about" className="about-section" style={{ backgroundImage: `url(${aboutBackground.src})` }}><div className="shell about-grid"><div className="about-copy"><p className="eyebrow">ABOUT US</p><h2>{t.about.titleTop}<br/>{t.about.titleBottom}</h2><p className="section-description">{t.about.description[0]}<br className="desktop-break"/> {t.about.description[1]}</p><a href="#benefits" className="gold-button">{t.about.cta} <ArrowRight size={15}/></a></div></div></section>
    <section id="nutrition" className="nutrition-section"><div className="shell">
     <div className="section-heading"><div><p className="eyebrow">{t.nutrition.eyebrow}</p><h2>{t.nutrition.title}</h2></div><p className="section-description">{t.nutrition.subtitle}</p></div>
-    {posters.length > 0 && <div className={`nutrition-posters${posters.length === 1 ? ' single' : ''}`}>{posters.map(p => <PosterZoom key={p.src} src={p.src} alt={p.alt} zoomLabel={t.common.zoomImage} closeLabel={t.common.close}/>)}</div>}
-    <div className={t.nutrition.benefitsPoster ? 'sr-only' : undefined}>
-    <div className="nutrition-grid">{t.nutrition.items.map(([title,desc],i)=>{const I=nutritionIcons[i];return <div className="nutrition-card" key={title}><span className="nutrition-number">0{i+1}</span><I size={26} strokeWidth={1.4}/><h3>{title}</h3><p>{desc}</p></div>;})}</div>
-    <p className="nutrition-source">{t.nutrition.source}</p>
-    </div>
-    <div className={t.nutrition.sialicPoster ? 'sr-only' : undefined}>
-    <div className="sialic-block">
-     <h3 className="sialic-title">{t.nutrition.sialicTitle}</h3>
-     <p className="sialic-intro">{t.nutrition.sialicIntro}</p>
-     <p className="sialic-subheading">{t.nutrition.sialicSubheading}</p>
-     <div className="sialic-grid">{t.nutrition.sialicItems.map(([title,desc],i)=><div className="sialic-item" key={title}><span className="sialic-number">{i+1}</span><div><strong>{title}</strong><p>{desc}</p></div></div>)}</div>
-     <p className="nutrition-source">{t.nutrition.sialicSource}</p>
-    </div>
+    <div className="nutrition-posters">
+     {t.nutrition.benefitsPoster && <PosterZoom src={t.nutrition.benefitsPoster} alt={t.nutrition.title} zoomLabel={t.common.zoomImage} closeLabel={t.common.close}/>}
+     {t.nutrition.sialicPoster && <PosterZoom src={t.nutrition.sialicPoster} alt={t.nutrition.sialicTitle} zoomLabel={t.common.zoomImage} closeLabel={t.common.close}/>}
     </div>
     {t.nutrition.benefitsPoster && <p className="nutrition-source">{t.nutrition.source}</p>}
    </div></section>

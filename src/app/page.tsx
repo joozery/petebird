@@ -66,6 +66,13 @@ function buildDicts(content: RawContent[]): Record<Lang, Dict> {
     }
     result[lang] = merged as Dict;
   }
+  // The infographic posters are made in Thai; until a translated poster is
+  // uploaded for a language, show the Thai one there rather than a text layout.
+  const thNutrition = result.th.nutrition;
+  for (const lang of LANGS) {
+    const n = result[lang].nutrition;
+    result[lang] = { ...result[lang], nutrition: { ...n, benefitsPoster: n.benefitsPoster || thNutrition.benefitsPoster, sialicPoster: n.sialicPoster || thNutrition.sialicPoster } };
+  }
   return result;
 }
 

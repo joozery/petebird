@@ -147,7 +147,7 @@ export default function AdminUsersPage() {
                         <div className="min-w-0">
                           <div className="flex items-center gap-1.5">
                             <span className="text-[#1f1b16] font-medium truncate">{u.name}</span>
-                            {isSelf && <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded-full bg-[#f3ead9] text-[#a77a3b]">คุณ</span>}
+                            {isSelf && <span className="shrink-0 text-[10px] px-1.5 py-0.5 rounded-full bg-[#f3ead9] text-[#b8892c]">คุณ</span>}
                           </div>
                           <div className="flex items-center gap-1 text-xs text-[#a79e8c]">
                             <Mail size={11} /> {u.email}
@@ -261,7 +261,7 @@ export default function AdminUsersPage() {
 function StatPill({ label, value }: { label: string; value: number }) {
   return (
     <div className="flex items-baseline gap-1.5 bg-white border border-[#ededed] rounded-full px-3.5 py-1.5">
-      <span className="text-sm font-semibold text-[#a77a3b]">{value}</span>
+      <span className="text-sm font-semibold text-[#b8892c]">{value}</span>
       <span className="text-xs text-[#a79e8c]">{label}</span>
     </div>
   );
@@ -285,7 +285,7 @@ function RoleMenu({
       disabled={disabled}
       className="inline-flex items-center gap-1.5 rounded-full border border-[#e5e3dd] bg-[#fafafa] px-3 py-1.5 text-xs font-medium text-[#50493f] hover:border-[#d9d5cb] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
     >
-      <Icon size={13} className="text-[#a77a3b]" /> {meta.label} <ChevronDown size={12} className="text-[#a79e8c]" />
+      <Icon size={13} className="text-[#b8892c]" /> {meta.label} <ChevronDown size={12} className="text-[#a79e8c]" />
     </DropdownMenu.Trigger>
   );
 
@@ -319,7 +319,7 @@ function RoleMenu({
               <DropdownMenu.Item
                 key={role}
                 onSelect={() => role !== user.role && onChange(role)}
-                className={`flex items-start gap-2.5 rounded-xl px-3 py-2.5 text-sm cursor-pointer outline-none data-[highlighted]:bg-[#f3ead9] ${active ? 'text-[#a77a3b]' : 'text-[#4b4234]'}`}
+                className={`flex items-start gap-2.5 rounded-xl px-3 py-2.5 text-sm cursor-pointer outline-none data-[highlighted]:bg-[#f3ead9] ${active ? 'text-[#b8892c]' : 'text-[#4b4234]'}`}
               >
                 <RoleIcon size={15} className="mt-0.5 shrink-0" />
                 <span>
@@ -369,7 +369,7 @@ function AddUserDialog({ open, onOpenChange, onCreated }: { open: boolean; onOpe
     }
   }
 
-  const input = 'mt-1.5 w-full rounded-lg border border-[#e5e3dd] bg-white px-3 py-2.5 text-sm text-[#1f1b16] outline-none focus:border-[#a77a3b] focus:ring-2 focus:ring-[#a77a3b1a] transition-shadow';
+  const input = 'mt-1.5 w-full rounded-lg border border-[#e5e3dd] bg-white px-3 py-2.5 text-sm text-[#1f1b16] outline-none focus:border-[#b8892c] focus:ring-2 focus:ring-[#b8892c1a] transition-shadow';
   const label = 'block text-[13px] font-medium text-[#50493f]';
 
   return (
@@ -418,10 +418,10 @@ function AddUserDialog({ open, onOpenChange, onCreated }: { open: boolean; onOpe
                       key={role}
                       type="button"
                       onClick={() => setForm({ ...form, role })}
-                      className={`text-left rounded-lg border px-3 py-2.5 transition-colors ${active ? 'border-[#a77a3b] bg-[#f3ead9]' : 'border-[#e5e3dd] hover:border-[#d9d5cb]'}`}
+                      className={`text-left rounded-lg border px-3 py-2.5 transition-colors ${active ? 'border-[#b8892c] bg-[#f3ead9]' : 'border-[#e5e3dd] hover:border-[#d9d5cb]'}`}
                     >
                       <span className="flex items-center gap-1.5 text-sm font-medium text-[#1f1b16]">
-                        <RoleIcon size={14} className="text-[#a77a3b]" /> {roleMeta[role].label}
+                        <RoleIcon size={14} className="text-[#b8892c]" /> {roleMeta[role].label}
                       </span>
                       <span className="block mt-0.5 text-[11px] text-[#a79e8c] leading-tight">{roleMeta[role].description}</span>
                     </button>

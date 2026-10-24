@@ -14,9 +14,9 @@ import { ImagePlus, Plus, Trash2, Upload } from 'lucide-react';
 // String fields whose key ends in "Poster" or "Image" hold an image path and
 // get an upload control instead of a textarea.
 
-const inputClass = 'w-full rounded-lg border border-[#e5e3dd] bg-white px-3 py-2 text-sm text-[#1f1b16] outline-none focus:border-[#a77a3b] focus:ring-2 focus:ring-[#a77a3b1a] transition-shadow';
+const inputClass = 'w-full rounded-lg border border-[#e5e3dd] bg-white px-3 py-2 text-sm text-[#1f1b16] outline-none focus:border-[#b8892c] focus:ring-2 focus:ring-[#b8892c1a] transition-shadow';
 const removeBtn = 'shrink-0 inline-flex items-center justify-center w-9 h-9 rounded-lg text-[#c0564a] hover:bg-[#fdf0ee] transition-colors';
-const addBtn = 'inline-flex items-center gap-1.5 text-xs font-medium text-[#a77a3b] hover:text-[#8a622b]';
+const addBtn = 'inline-flex items-center gap-1.5 text-xs font-medium text-[#b8892c] hover:text-[#8a622b]';
 
 function humanize(key: string): string {
   return key
