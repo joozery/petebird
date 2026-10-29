@@ -274,7 +274,7 @@ html { scroll-padding-top:88px; }
 /* Hero cover: the product shot has no empty side, so show the whole image on the right and let the left blend into the page colour for the text. */
 @media(min-width:768px){
 .hero{background-size:auto 100%;background-position:calc(100% + 60px) center;background-repeat:no-repeat;background-color:#fffdfa}
-.hero-fade{background:linear-gradient(90deg,#fffdfa 0%,#fffdfa 39%,#fffdfa00 53%)}
+.hero-fade{inset:0 -60px 0 auto;aspect-ratio:1671/941;background:linear-gradient(90deg,#fffdfa 0%,#fffdfaeb 6%,#fffdfac2 13%,#fffdfa85 21%,#fffdfa45 29%,#fffdfa14 37%,#fffdfa00 45%)}
 .hero-features{max-width:520px}
 }
 @media(max-width:767px){
