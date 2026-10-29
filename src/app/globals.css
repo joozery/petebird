@@ -249,3 +249,51 @@ html { scroll-padding-top:88px; }
  .header-inner { height:64px; }
  .logo { height:50px; width:auto; }
 }
+
+/* Footer: same emblem logo as the navbar. */
+.footer>a.footer-logo{display:block;line-height:0}
+
+/* Hero headline: keep the site font, add a gold gradient on the highlighted line and a small ornament below. */
+.hero h1 .gold-word{display:inline-block;font-weight:600;background:linear-gradient(100deg,#9a6c18 0%,#d9b04f 45%,#b8862a 70%,#e6c673 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;padding-top:.08em;filter:drop-shadow(0 2px 6px #c0912f33)}
+.hero h1::after{content:'';display:block;width:92px;height:10px;margin-top:14px;background:
+  radial-gradient(circle,#c0912f 0 3px,transparent 3.5px) center/10px 10px no-repeat,
+  linear-gradient(90deg,transparent,#c0912f) left center/38px 1px no-repeat,
+  linear-gradient(90deg,#c0912f,transparent) right center/38px 1px no-repeat}
+
+/* Motion: press feedback and card glow (scroll/hero reveals live in HomeClient's Reveal). */
+.gold-button:active,.outline-button:active{transform:scale(.97)}
+.shop-card{transition:box-shadow .35s}
+.shop-card:hover{box-shadow:0 14px 34px #6b481233}
+@media(prefers-reduced-motion:reduce){.shop-card,.gold-button,.outline-button{transition:none}}
+
+/* Navbar menu: larger, slightly bolder labels. */
+.desktop-nav{font-size:15px;font-weight:500;gap:30px;white-space:nowrap}
+@media(max-width:1100px){.desktop-nav{font-size:14px;gap:20px}}
+@media(max-width:900px){.desktop-nav{display:none}}
+
+/* Hero cover: the product shot has no empty side, so show the whole image on the right and let the left blend into the page colour for the text. */
+@media(min-width:768px){
+.hero{background-size:auto 100%;background-position:calc(100% + 60px) center;background-repeat:no-repeat;background-color:#fffdfa}
+.hero-fade{background:linear-gradient(90deg,#fffdfa 0%,#fffdfa 39%,#fffdfa00 53%)}
+.hero-features{max-width:520px}
+}
+@media(max-width:767px){
+.hero{background-size:100% auto;background-position:top center}
+}
+
+/* Dedicated text-free photograph for the care benefits section. */
+.benefits-photo{position:relative;overflow:hidden;min-height:285px}
+.benefits-photo img{width:100%!important;height:100%!important;object-fit:cover;object-position:center}
+@media(max-width:767px){.benefits-photo{min-height:185px}.benefits-photo img{object-position:center 55%}}
+
+/* Hero headline: thin gold outline around the first line (stroke painted behind the fill so letters keep their weight). */
+.hero h1{-webkit-text-stroke:2px #d4a843;paint-order:stroke fill;text-shadow:0 2px 10px #c0912f33}
+.hero h1 .gold-word{-webkit-text-stroke:0;text-shadow:none}
+
+/* Desktop navbar: LINE button and language switcher share the same height. */
+@media(min-width:768px){
+.header-contact .lang-switcher,.header-contact .gold-button{height:38px;min-height:0;box-sizing:border-box}
+.header-contact .gold-button{padding:0 18px;font-size:11px;gap:8px}
+.header-contact .gold-button .line-icon{width:20px;height:20px}
+.header-contact .lang-switcher{padding:0 14px}
+}
