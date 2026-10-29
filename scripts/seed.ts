@@ -89,15 +89,24 @@ async function seedProducts() {
   console.log(`[seed] products: created ${defs.length}`);
 }
 
+const DEFAULT_LINE_URL = 'https://lin.ee/qPH5LVG';
+
 async function seedContactInfo() {
   const existing = await ContactInfo.findById('contact');
   if (existing) {
-    console.log('[seed] contact info already exists, skipping');
+    // Never overwrite what the admin saved; only fill in a missing LINE link.
+    if (!existing.lineUrl) {
+      existing.lineUrl = process.env.NEXT_PUBLIC_LINE_URL || DEFAULT_LINE_URL;
+      await existing.save();
+      console.log('[seed] contact info: filled in missing LINE url');
+    } else {
+      console.log('[seed] contact info already exists, skipping');
+    }
     return;
   }
   await ContactInfo.create({
     _id: 'contact',
-    lineUrl: process.env.NEXT_PUBLIC_LINE_URL || null,
+    lineUrl: process.env.NEXT_PUBLIC_LINE_URL || DEFAULT_LINE_URL,
     facebookUrl: process.env.NEXT_PUBLIC_FACEBOOK_URL || null,
     phone: process.env.NEXT_PUBLIC_CONTACT_PHONE || null,
     lineQrImage: null,

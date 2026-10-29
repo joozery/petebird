@@ -43,10 +43,10 @@ export default async function AdminDashboardPage() {
               className="group block bg-white border border-[#ededed] rounded-2xl p-5 hover:border-[#d9d5cb] hover:shadow-[0_1px_2px_rgba(0,0,0,0.04),0_8px_24px_rgba(31,27,22,0.05)] transition-all"
             >
               <div className="flex items-start justify-between">
-                <div className="w-9 h-9 rounded-lg bg-[#f5f1e7] text-[#a77a3b] flex items-center justify-center">
+                <div className="w-9 h-9 rounded-lg bg-[#f5f1e7] text-[#b8892c] flex items-center justify-center">
                   <Icon size={17} />
                 </div>
-                <ArrowUpRight size={15} className="text-[#d2cdc0] group-hover:text-[#a77a3b] transition-colors" />
+                <ArrowUpRight size={15} className="text-[#d2cdc0] group-hover:text-[#b8892c] transition-colors" />
               </div>
               <p className="mt-4 text-[28px] leading-none font-semibold text-[#1f1b16]">{c.value}</p>
               <p className="mt-2 text-[13px] text-[#50493f]">{c.label}</p>

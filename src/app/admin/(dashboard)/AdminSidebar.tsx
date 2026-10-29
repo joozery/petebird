@@ -27,7 +27,7 @@ export function AdminSidebar({ name, role }: { name: string; role: AdminRole }) 
     <aside className="w-64 shrink-0 bg-white border-r border-[#ededed] flex flex-col">
       <div className="h-16 px-6 flex items-center border-b border-[#ededed]">
         <div>
-          <p className="text-[10px] tracking-[0.18em] text-[#a77a3b] font-semibold">PETE BIRD&apos;S NEST</p>
+          <p className="text-[10px] tracking-[0.18em] text-[#b8892c] font-semibold">PETE BIRD&apos;S NEST</p>
           <p className="text-[13px] text-[#1f1b16] font-medium">หลังบ้านแอดมิน</p>
         </div>
       </div>
