@@ -23,10 +23,14 @@ export default function AdminProductsPage() {
   const [deleteTarget, setDeleteTarget] = useState<ProductRow | null>(null);
 
   async function load() {
-    const res = await fetch('/api/admin/products');
-    const data = await res.json();
-    if (!res.ok) return setError(data.error || 'โหลดข้อมูลไม่สำเร็จ');
-    setProducts(data.products);
+    try {
+      const res = await fetch('/api/admin/products', { cache: 'no-store' });
+      const data = await res.json();
+      if (!res.ok) return setError(data.error || 'โหลดข้อมูลไม่สำเร็จ');
+      setProducts(data.products);
+    } catch {
+      setError('เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ลองใหม่อีกครั้ง');
+    }
   }
 
   useEffect(() => {
@@ -34,24 +38,38 @@ export default function AdminProductsPage() {
   }, []);
 
   async function togglePublished(p: ProductRow) {
-    await fetch(`/api/admin/products/${p._id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ isPublished: !p.isPublished }),
-    });
+    setError(null);
+    // Optimistic update so the toggle feels instant on mobile.
+    setProducts((list) => list && list.map((x) => (x._id === p._id ? { ...x, isPublished: !p.isPublished } : x)));
+    try {
+      const res = await fetch(`/api/admin/products/${p._id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isPublished: !p.isPublished }),
+      });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'บันทึกสถานะไม่สำเร็จ');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'บันทึกสถานะไม่สำเร็จ');
+    }
     load();
   }
 
   async function remove(p: ProductRow) {
-    await fetch(`/api/admin/products/${p._id}`, { method: 'DELETE' });
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/products/${p._id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'ลบไม่สำเร็จ');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'ลบไม่สำเร็จ');
+    }
     setDeleteTarget(null);
     load();
   }
 
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex items-start sm:items-center justify-between gap-3">
+        <div className="min-w-0">
           <h1 className="text-[22px] font-semibold text-[#1f1b16]">สินค้า</h1>
           <p className="mt-1 text-sm text-[#8a7f6d]">จัดการสินค้า ราคา และรูปภาพที่แสดงบนหน้าเว็บ</p>
         </div>
@@ -59,7 +77,7 @@ export default function AdminProductsPage() {
           href="/admin/products/new"
           className="flex items-center gap-2 rounded-lg bg-[#1f1b16] text-white px-4 py-2.5 text-sm font-medium hover:bg-[#33291c] transition-colors shrink-0"
         >
-          <Plus size={16} /> เพิ่มสินค้า
+          <Plus size={16} /> <span className="hidden sm:inline">เพิ่มสินค้า</span><span className="sm:hidden">เพิ่ม</span>
         </Link>
       </div>
 
@@ -82,7 +100,55 @@ export default function AdminProductsPage() {
             <p className="mt-3 text-sm text-[#8a7f6d]">ยังไม่มีสินค้า — กด &quot;เพิ่มสินค้า&quot; หรือรัน seed script</p>
           </div>
         ) : (
-          <table className="w-full text-sm">
+          <>
+          <ul className="md:hidden divide-y divide-[#f3f2ef]">
+            {products.map((p) => (
+              <li key={p._id} className="p-4">
+                <div className="flex gap-3">
+                  <Link href={`/admin/products/${p._id}`} className="relative w-16 h-16 shrink-0 rounded-xl overflow-hidden bg-[#f5f1e7] border border-[#ededed]">
+                    {p.image && <Image src={p.image} alt="" fill sizes="64px" className="object-cover" />}
+                  </Link>
+                  <div className="min-w-0 flex-1">
+                    <Link href={`/admin/products/${p._id}`} className="block">
+                      <p className="text-[15px] text-[#1f1b16] font-medium leading-snug line-clamp-2">{p.translations.th.name}</p>
+                      <p className="mt-0.5 text-xs text-[#a79e8c] truncate">
+                        #{p.slug}
+                        {p.badge && <> · {p.badge}</>}
+                      </p>
+                    </Link>
+                    <p className="mt-1 text-sm text-[#50493f]">{p.price === null ? 'สอบถามราคา' : `฿${p.price.toLocaleString('th-TH')}`}</p>
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center gap-2">
+                  <button
+                    onClick={() => togglePublished(p)}
+                    className={`inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-full transition-colors ${
+                      p.isPublished ? 'bg-[#e9f5ea] text-[#3a7a44]' : 'bg-[#f3f2ef] text-[#8a7f6d]'
+                    }`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${p.isPublished ? 'bg-[#3a7a44]' : 'bg-[#b5ad9d]'}`} />
+                    {p.isPublished ? 'แสดงอยู่' : 'ซ่อนอยู่'}
+                  </button>
+                  <div className="ml-auto flex items-center gap-2">
+                    <Link
+                      href={`/admin/products/${p._id}`}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-[#e5e3dd] px-3 h-9 text-[13px] font-medium text-[#50493f] active:bg-[#f5f4f2]"
+                    >
+                      <PenLine size={14} /> แก้ไข
+                    </Link>
+                    <button
+                      onClick={() => setDeleteTarget(p)}
+                      aria-label={`ลบ ${p.translations.th.name}`}
+                      className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-[#f3cfc8] text-[#c0564a] active:bg-[#fdf0ee]"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <table className="hidden md:table w-full text-sm">
             <thead>
               <tr className="bg-[#fafafa] border-b border-[#ededed] text-left text-[11px] uppercase tracking-wide text-[#a79e8c]">
                 <th className="px-5 py-3 font-medium">สินค้า</th>
@@ -143,13 +209,14 @@ export default function AdminProductsPage() {
               ))}
             </tbody>
           </table>
+          </>
         )}
       </div>
 
       <AlertDialog.Root open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <AlertDialog.Portal>
           <AlertDialog.Overlay className="dialog-overlay" />
-          <AlertDialog.Content className="dialog-content" style={{ maxWidth: 400 }}>
+          <AlertDialog.Content className="dialog-content admin-dialog" style={{ maxWidth: 400 }}>
             <div className="w-11 h-11 rounded-full bg-[#fdf0ee] text-[#c0564a] flex items-center justify-center">
               <AlertTriangle size={20} />
             </div>
@@ -157,11 +224,11 @@ export default function AdminProductsPage() {
             <AlertDialog.Description className="mt-2 text-sm text-[#8a7f6d] leading-6">
               สินค้า <strong className="text-[#1f1b16]">{deleteTarget?.translations.th.name}</strong> จะถูกลบถาวรและหายจากหน้าเว็บทันที ย้อนกลับไม่ได้
             </AlertDialog.Description>
-            <div className="mt-6 flex gap-3 justify-end">
-              <AlertDialog.Cancel className="rounded-lg border border-[#e5e3dd] px-4 py-2 text-sm text-[#50493f]">ยกเลิก</AlertDialog.Cancel>
+            <div className="mt-6 flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+              <AlertDialog.Cancel className="rounded-lg border border-[#e5e3dd] px-4 py-2.5 sm:py-2 text-sm text-[#50493f]">ยกเลิก</AlertDialog.Cancel>
               <AlertDialog.Action
                 onClick={() => deleteTarget && remove(deleteTarget)}
-                className="rounded-lg bg-[#c0564a] text-white px-4 py-2 text-sm font-medium hover:bg-[#a8483d]"
+                className="rounded-lg bg-[#c0564a] text-white px-4 py-2.5 sm:py-2 text-sm font-medium hover:bg-[#a8483d]"
               >
                 ลบสินค้า
               </AlertDialog.Action>

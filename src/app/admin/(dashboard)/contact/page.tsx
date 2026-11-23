@@ -3,13 +3,14 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { AlertTriangle, CheckCircle2, ImagePlus, MessageCircle, Phone, QrCode, Share2, Upload } from 'lucide-react';
+import { compressImage } from '@/lib/compressImage';
 
 type ContactState = { lineUrl: string; facebookUrl: string; phone: string; lineQrImage: string };
 const empty: ContactState = { lineUrl: '', facebookUrl: '', phone: '', lineQrImage: '' };
 
 const input = 'mt-1.5 w-full rounded-lg border border-[#e5e3dd] bg-white pl-10 pr-3 py-2.5 text-sm text-[#1f1b16] outline-none focus:border-[#b8892c] focus:ring-2 focus:ring-[#b8892c1a] transition-shadow';
 const label = 'block text-[13px] font-medium text-[#50493f]';
-const card = 'bg-white border border-[#ededed] rounded-2xl p-6';
+const card = 'bg-white border border-[#ededed] rounded-2xl p-4 sm:p-6';
 
 export default function AdminContactPage() {
   const [form, setForm] = useState<ContactState>(empty);
@@ -35,16 +36,22 @@ export default function AdminContactPage() {
   }, []);
 
   async function onUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const picked = e.target.files?.[0];
+    e.target.value = '';
+    if (!picked) return;
     setUploading(true);
+    setStatus(null);
     try {
+      const file = await compressImage(picked);
       const fd = new FormData();
       fd.append('file', file);
       fd.append('folder', 'qr');
       const res = await fetch('/api/admin/uploads', { method: 'POST', body: fd });
       const data = await res.json();
-      if (res.ok) setForm((f) => ({ ...f, lineQrImage: data.path }));
+      if (!res.ok) throw new Error(data.error || 'อัปโหลดไม่สำเร็จ');
+      setForm((f) => ({ ...f, lineQrImage: data.path }));
+    } catch (err) {
+      setStatus({ type: 'error', text: err instanceof Error ? err.message : 'อัปโหลดไม่สำเร็จ' });
     } finally {
       setUploading(false);
     }
@@ -87,21 +94,21 @@ export default function AdminContactPage() {
           LINE URL
           <div className="relative">
             <MessageCircle size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#a79e8c]" />
-            <input className={input} placeholder="https://line.me/ti/p/xxxxx" value={form.lineUrl} onChange={(e) => setForm({ ...form, lineUrl: e.target.value })} />
+            <input type="url" inputMode="url" autoCapitalize="none" className={input} placeholder="https://line.me/ti/p/xxxxx" value={form.lineUrl} onChange={(e) => setForm({ ...form, lineUrl: e.target.value })} />
           </div>
         </label>
         <label className={label}>
           Facebook Page URL
           <div className="relative">
             <Share2 size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#a79e8c]" />
-            <input className={input} placeholder="https://facebook.com/xxxxx" value={form.facebookUrl} onChange={(e) => setForm({ ...form, facebookUrl: e.target.value })} />
+            <input type="url" inputMode="url" autoCapitalize="none" className={input} placeholder="https://facebook.com/xxxxx" value={form.facebookUrl} onChange={(e) => setForm({ ...form, facebookUrl: e.target.value })} />
           </div>
         </label>
         <label className={label}>
           เบอร์โทร
           <div className="relative">
             <Phone size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#a79e8c]" />
-            <input className={input} placeholder="06-2595-9749" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+            <input type="tel" inputMode="tel" className={input} placeholder="06-2595-9749" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
           </div>
         </label>
 
@@ -109,7 +116,7 @@ export default function AdminContactPage() {
           <p className={`${label} flex items-center gap-1.5`}>
             <QrCode size={14} className="text-[#a79e8c]" /> QR Code LINE
           </p>
-          <div className="mt-2 flex items-center gap-5">
+          <div className="mt-2 flex flex-wrap items-center gap-4 sm:gap-5">
             {form.lineQrImage ? (
               <div className="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden border border-[#ededed] bg-[#fafafa]">
                 <Image src={form.lineQrImage} alt="" fill sizes="96px" className="object-contain" />
@@ -139,8 +146,8 @@ export default function AdminContactPage() {
         </div>
       )}
 
-      <div className="mt-4">
-        <button onClick={save} disabled={saving} className="rounded-lg bg-[#1f1b16] text-white px-5 py-2.5 text-sm font-medium hover:bg-[#33291c] disabled:opacity-60 transition-colors">
+      <div className="mt-4 sticky bottom-0 -mx-4 sm:mx-0 px-4 sm:px-0 py-3 sm:py-0 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-0 bg-white/95 sm:bg-transparent border-t border-[#ededed] sm:border-0 sm:static">
+        <button onClick={save} disabled={saving || uploading} className="w-full sm:w-auto rounded-lg bg-[#1f1b16] text-white px-5 py-3 sm:py-2.5 text-sm font-medium hover:bg-[#33291c] disabled:opacity-60 transition-colors">
           {saving ? 'กำลังบันทึก...' : 'บันทึก'}
         </button>
       </div>

@@ -85,21 +85,21 @@ export default function AdminUsersPage() {
 
   return (
     <div>
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl text-[#1f1b16]">ผู้ใช้งานแอดมิน</h1>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-[22px] sm:text-2xl text-[#1f1b16]">ผู้ใช้งานแอดมิน</h1>
           <p className="mt-1 text-sm text-[#8a7f6d]">จัดการบัญชีแอดมินและระดับสิทธิ์การใช้งาน</p>
         </div>
         <button
           onClick={() => setAddOpen(true)}
           className="flex items-center gap-2 rounded-lg bg-[#1f1b16] text-white px-4 py-2.5 text-sm font-medium hover:bg-[#33291c] transition-colors shrink-0"
         >
-          <Plus size={16} /> เพิ่มผู้ใช้งาน
+          <Plus size={16} /> <span className="hidden sm:inline">เพิ่มผู้ใช้งาน</span><span className="sm:hidden">เพิ่ม</span>
         </button>
       </div>
 
       {users !== null && (
-        <div className="mt-5 flex gap-3">
+        <div className="mt-5 flex flex-wrap gap-2 sm:gap-3">
           <StatPill label="ทั้งหมด" value={total} />
           <StatPill label="Owner" value={owners} />
           <StatPill label="Editor" value={total - owners} />
@@ -122,7 +122,8 @@ export default function AdminUsersPage() {
         ) : users.length === 0 ? (
           <p className="p-10 text-center text-sm text-[#8a7f6d]">ยังไม่มีผู้ใช้งาน</p>
         ) : (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto overscroll-x-contain">
+          <table className="w-full min-w-[720px] text-sm">
             <thead>
               <tr className="bg-[#fafafa] border-b border-[#ededed] text-left text-[11px] uppercase tracking-wide text-[#a79e8c]">
                 <th className="px-5 py-3 font-medium">ผู้ใช้งาน</th>
@@ -226,6 +227,7 @@ export default function AdminUsersPage() {
               })}
             </tbody>
           </table>
+          </div>
         )}
       </div>
 
@@ -234,7 +236,7 @@ export default function AdminUsersPage() {
       <AlertDialog.Root open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <AlertDialog.Portal>
           <AlertDialog.Overlay className="dialog-overlay" />
-          <AlertDialog.Content className="dialog-content" style={{ maxWidth: 400 }}>
+          <AlertDialog.Content className="dialog-content admin-dialog" style={{ maxWidth: 400 }}>
             <div className="w-11 h-11 rounded-full bg-[#fdf0ee] text-[#c0564a] flex items-center justify-center">
               <AlertTriangle size={20} />
             </div>
@@ -242,7 +244,7 @@ export default function AdminUsersPage() {
             <AlertDialog.Description className="mt-2 text-sm text-[#8a7f6d] leading-6">
               บัญชี <strong className="text-[#1f1b16]">{deleteTarget?.name}</strong> ({deleteTarget?.email}) จะถูกลบถาวร ย้อนกลับไม่ได้
             </AlertDialog.Description>
-            <div className="mt-6 flex gap-3 justify-end">
+            <div className="mt-6 flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
               <AlertDialog.Cancel className="rounded-lg border border-[#e5e3dd] px-4 py-2 text-sm text-[#50493f]">ยกเลิก</AlertDialog.Cancel>
               <AlertDialog.Action
                 onClick={() => deleteTarget && removeUser(deleteTarget)}
@@ -376,7 +378,7 @@ function AddUserDialog({ open, onOpenChange, onCreated }: { open: boolean; onOpe
     <Dialog.Root open={open} onOpenChange={(next) => { onOpenChange(next); if (!next) reset(); }}>
       <Dialog.Portal>
         <Dialog.Overlay className="dialog-overlay" />
-        <Dialog.Content className="dialog-content" style={{ maxWidth: 440 }}>
+        <Dialog.Content className="dialog-content admin-dialog" style={{ maxWidth: 440 }}>
           <Dialog.Close className="dialog-close" aria-label="ปิด"><X size={18} /></Dialog.Close>
           <Dialog.Title className="text-lg font-medium text-[#1f1b16]">เพิ่มผู้ใช้งานแอดมิน</Dialog.Title>
           <Dialog.Description className="mt-1 text-sm text-[#8a7f6d]">สร้างบัญชีใหม่สำหรับเข้าใช้งานหลังบ้าน</Dialog.Description>

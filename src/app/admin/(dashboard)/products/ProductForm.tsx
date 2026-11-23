@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Switch } from 'radix-ui';
 import { AlertTriangle, ImagePlus, Upload } from 'lucide-react';
+import { compressImage } from '@/lib/compressImage';
 
 type Translation = { name: string; alt: string; type: string; unit: string; description: string; detail: string };
 type ProductFormState = {
@@ -36,7 +37,7 @@ const LANG_TABS: { code: 'th' | 'en' | 'zh'; label: string }[] = [
 
 const input = 'mt-1.5 w-full rounded-lg border border-[#e5e3dd] bg-white px-3 py-2.5 text-sm text-[#1f1b16] outline-none focus:border-[#b8892c] focus:ring-2 focus:ring-[#b8892c1a] transition-shadow';
 const label = 'block text-[13px] font-medium text-[#50493f]';
-const card = 'bg-white border border-[#ededed] rounded-2xl p-6';
+const card = 'bg-white border border-[#ededed] rounded-2xl p-4 sm:p-6';
 const cardTitle = 'text-[15px] font-semibold text-[#1f1b16]';
 
 export function ProductForm({ productId }: { productId?: string }) {
@@ -47,12 +48,18 @@ export function ProductForm({ productId }: { productId?: string }) {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const errorRef = useRef<HTMLDivElement>(null);
+
+  // On a phone the error box can be far below the fold — bring it into view.
+  useEffect(() => {
+    if (error) errorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [error]);
 
   useEffect(() => {
     if (!productId) return;
     (async () => {
-      const res = await fetch(`/api/admin/products/${productId}`);
-      const data = await res.json();
+      const res = await fetch(`/api/admin/products/${productId}`, { cache: 'no-store' });
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setError(data.error || 'โหลดข้อมูลสินค้าไม่สำเร็จ');
         return;
@@ -76,11 +83,13 @@ export function ProductForm({ productId }: { productId?: string }) {
   }
 
   async function onUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const picked = e.target.files?.[0];
+    e.target.value = ''; // allow re-selecting the same file after an error
+    if (!picked) return;
     setUploading(true);
     setError(null);
     try {
+      const file = await compressImage(picked);
       const fd = new FormData();
       fd.append('file', file);
       fd.append('folder', 'products');
@@ -97,8 +106,18 @@ export function ProductForm({ productId }: { productId?: string }) {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    setSaving(true);
     setError(null);
+
+    // Only the active language tab's inputs are rendered, so the browser's
+    // `required` check can't see empty fields in the other languages.
+    const missingLang = LANG_TABS.find((l) => Object.values(form.translations[l.code]).some((v) => !String(v ?? '').trim()));
+    if (missingLang) {
+      setTab(missingLang.code);
+      setError(`กรอกข้อความภาษา ${missingLang.label} ให้ครบทุกช่องก่อนบันทึก`);
+      return;
+    }
+
+    setSaving(true);
     try {
       const payload = {
         slug: form.slug.trim(),
@@ -127,6 +146,13 @@ export function ProductForm({ productId }: { productId?: string }) {
   }
 
   if (loading) {
+    if (error) {
+      return (
+        <div role="alert" className="max-w-3xl flex items-center gap-2 rounded-lg bg-[#fdf0ee] border border-[#f3cfc8] px-4 py-3 text-sm text-[#a83a2a]">
+          <AlertTriangle size={15} className="shrink-0" /> {error}
+        </div>
+      );
+    }
     return (
       <div className="max-w-3xl space-y-4">
         {[0, 1, 2].map((i) => (
@@ -140,14 +166,14 @@ export function ProductForm({ productId }: { productId?: string }) {
     <form onSubmit={onSubmit} className="max-w-3xl space-y-5">
       <div className={card}>
         <h2 className={cardTitle}>ข้อมูลพื้นฐาน</h2>
-        <div className="mt-4 grid grid-cols-2 gap-4">
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className={label}>
             Slug (เช่น 01, 02)
             <input className={input} required value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} />
           </label>
           <label className={label}>
             ลำดับการแสดงผล
-            <input type="number" className={input} value={form.order} onChange={(e) => setForm({ ...form, order: Number(e.target.value) })} />
+            <input type="number" inputMode="numeric" className={input} value={form.order} onChange={(e) => setForm({ ...form, order: Number(e.target.value) })} />
           </label>
           <label className={label}>
             Badge (เช่น SIGNATURE COLLECTION)
@@ -155,7 +181,7 @@ export function ProductForm({ productId }: { productId?: string }) {
           </label>
           <label className={label}>
             ราคา (บาท, เว้นว่าง = &quot;สอบถามราคา&quot;)
-            <input type="number" className={input} value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
+            <input type="number" inputMode="decimal" className={input} value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
           </label>
         </div>
 
@@ -173,7 +199,7 @@ export function ProductForm({ productId }: { productId?: string }) {
 
       <div className={card}>
         <h2 className={cardTitle}>รูปสินค้า</h2>
-        <div className="mt-4 flex items-center gap-5">
+        <div className="mt-4 flex flex-wrap items-center gap-4 sm:gap-5">
           {form.image ? (
             <div className="relative w-28 h-28 shrink-0 rounded-xl overflow-hidden border border-[#ededed] bg-[#fafafa]">
               <Image src={form.image} alt="" fill sizes="112px" className="object-cover" />
@@ -183,24 +209,25 @@ export function ProductForm({ productId }: { productId?: string }) {
               <ImagePlus size={24} />
             </div>
           )}
-          <label className="inline-flex items-center gap-2 rounded-lg border border-[#e5e3dd] px-4 py-2.5 text-sm font-medium text-[#50493f] cursor-pointer hover:bg-[#f5f4f2] transition-colors">
+          <label className="inline-flex items-center gap-2 rounded-lg border border-[#e5e3dd] px-4 py-3 sm:py-2.5 text-sm font-medium text-[#50493f] cursor-pointer hover:bg-[#f5f4f2] transition-colors">
             <Upload size={14} />
             {uploading ? 'กำลังอัปโหลด...' : form.image ? 'เปลี่ยนรูป' : 'อัปโหลดรูป'}
             <input type="file" accept="image/*" className="hidden" onChange={onUpload} disabled={uploading} />
           </label>
         </div>
+        <p className="mt-2 text-xs text-[#a0947e]">รูปจากมือถือจะถูกย่อขนาดอัตโนมัติก่อนอัปโหลด</p>
       </div>
 
       <div className={card}>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className={cardTitle}>ข้อความสินค้า</h2>
-          <div className="flex gap-1 bg-[#f5f4f2] rounded-lg p-1">
+          <div className="flex gap-1 bg-[#f5f4f2] rounded-lg p-1 w-full sm:w-auto">
             {LANG_TABS.map((l) => (
               <button
                 key={l.code}
                 type="button"
                 onClick={() => setTab(l.code)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                className={`flex-1 sm:flex-none px-3 py-2 sm:py-1.5 text-[13px] sm:text-xs font-medium rounded-md transition-colors ${
                   tab === l.code ? 'bg-white text-[#1f1b16] shadow-[0_1px_2px_rgba(0,0,0,0.06)]' : 'text-[#8a7f6d]'
                 }`}
               >
@@ -209,7 +236,7 @@ export function ProductForm({ productId }: { productId?: string }) {
             ))}
           </div>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-4">
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className={label}>
             ชื่อสินค้า
             <input className={input} required value={form.translations[tab].name} onChange={(e) => updateTranslation('name', e.target.value)} />
@@ -226,11 +253,11 @@ export function ProductForm({ productId }: { productId?: string }) {
             ข้อความ alt รูปภาพ
             <input className={input} required value={form.translations[tab].alt} onChange={(e) => updateTranslation('alt', e.target.value)} />
           </label>
-          <label className={`${label} col-span-2`}>
+          <label className={`${label} sm:col-span-2`}>
             คำอธิบายสั้น (การ์ดสินค้า)
             <textarea className={`${input} min-h-20`} required value={form.translations[tab].description} onChange={(e) => updateTranslation('description', e.target.value)} />
           </label>
-          <label className={`${label} col-span-2`}>
+          <label className={`${label} sm:col-span-2`}>
             รายละเอียดเต็ม (popup)
             <textarea className={`${input} min-h-24`} required value={form.translations[tab].detail} onChange={(e) => updateTranslation('detail', e.target.value)} />
           </label>
@@ -238,16 +265,17 @@ export function ProductForm({ productId }: { productId?: string }) {
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 rounded-lg bg-[#fdf0ee] border border-[#f3cfc8] px-4 py-3 text-sm text-[#a83a2a]">
+        <div ref={errorRef} role="alert" className="flex items-center gap-2 rounded-lg bg-[#fdf0ee] border border-[#f3cfc8] px-4 py-3 text-sm text-[#a83a2a]">
           <AlertTriangle size={15} className="shrink-0" /> {error}
         </div>
       )}
 
-      <div className="flex gap-3">
-        <button type="submit" disabled={saving} className="rounded-lg bg-[#1f1b16] text-white px-5 py-2.5 text-sm font-medium hover:bg-[#33291c] disabled:opacity-60 transition-colors">
+      {/* Sticky on phones so Save is always reachable without scrolling to the bottom. */}
+      <div className="sticky bottom-0 z-10 -mx-4 sm:mx-0 px-4 sm:px-0 py-3 sm:py-0 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-0 bg-white/95 sm:bg-transparent backdrop-blur sm:backdrop-blur-none border-t border-[#ededed] sm:border-0 sm:static flex gap-3">
+        <button type="submit" disabled={saving || uploading} className="flex-1 sm:flex-none rounded-lg bg-[#1f1b16] text-white px-5 py-3 sm:py-2.5 text-sm font-medium hover:bg-[#33291c] disabled:opacity-60 transition-colors">
           {saving ? 'กำลังบันทึก...' : 'บันทึก'}
         </button>
-        <button type="button" onClick={() => router.push('/admin/products')} className="rounded-lg border border-[#e5e3dd] px-5 py-2.5 text-sm text-[#50493f] hover:bg-[#f5f4f2] transition-colors">
+        <button type="button" onClick={() => router.push('/admin/products')} className="flex-1 sm:flex-none rounded-lg border border-[#e5e3dd] px-5 py-3 sm:py-2.5 text-sm text-[#50493f] hover:bg-[#f5f4f2] transition-colors">
           ยกเลิก
         </button>
       </div>

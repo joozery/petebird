@@ -297,3 +297,16 @@ html { scroll-padding-top:88px; }
 .header-contact .gold-button .line-icon{width:20px;height:20px}
 .header-contact .lang-switcher{padding:0 14px}
 }
+
+/* Admin: iOS Safari zooms the page when a focused field's font is < 16px.
+   Keep fields at 16px on phones so editing doesn't jump around. */
+@media (max-width: 639px) {
+  .admin-shell input:not([type='checkbox']):not([type='radio']):not([type='file']),
+  .admin-shell textarea,
+  .admin-shell select { font-size: 16px; }
+}
+
+/* Admin: the storefront's global h2 sizes (unlayered, so they beat Tailwind
+   utilities) blow up admin card and dialog titles — pin them back. */
+.admin-shell h2 { font-size: 15px; line-height: 1.5; letter-spacing: normal; font-weight: 600; }
+.admin-dialog h2 { font-size: 18px; line-height: 1.55; letter-spacing: normal; font-weight: 500; }

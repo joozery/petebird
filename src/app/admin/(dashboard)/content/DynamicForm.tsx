@@ -3,6 +3,7 @@
 import { useState, type ChangeEvent } from 'react';
 import Image from 'next/image';
 import { ImagePlus, Plus, Trash2, Upload } from 'lucide-react';
+import { compressImage } from '@/lib/compressImage';
 
 // Generic editor for a SiteContent section's value. Every section in
 // src/i18n/dictionaries.ts is built from only these shapes, so one recursive
@@ -16,7 +17,7 @@ import { ImagePlus, Plus, Trash2, Upload } from 'lucide-react';
 
 const inputClass = 'w-full rounded-lg border border-[#e5e3dd] bg-white px-3 py-2 text-sm text-[#1f1b16] outline-none focus:border-[#b8892c] focus:ring-2 focus:ring-[#b8892c1a] transition-shadow';
 const removeBtn = 'shrink-0 inline-flex items-center justify-center w-9 h-9 rounded-lg text-[#c0564a] hover:bg-[#fdf0ee] transition-colors';
-const addBtn = 'inline-flex items-center gap-1.5 text-xs font-medium text-[#b8892c] hover:text-[#8a622b]';
+const addBtn = 'inline-flex items-center gap-1.5 py-1.5 text-xs font-medium text-[#b8892c] hover:text-[#8a622b]';
 
 function humanize(key: string): string {
   return key
@@ -31,12 +32,13 @@ function ImageField({ value, onChange }: { value: string; onChange: (next: strin
   const [error, setError] = useState<string | null>(null);
 
   async function onUpload(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
+    const picked = e.target.files?.[0];
     e.target.value = '';
-    if (!file) return;
+    if (!picked) return;
     setUploading(true);
     setError(null);
     try {
+      const file = await compressImage(picked);
       const fd = new FormData();
       fd.append('file', file);
       fd.append('folder', 'content');
@@ -53,7 +55,7 @@ function ImageField({ value, onChange }: { value: string; onChange: (next: strin
 
   return (
     <div>
-      <div className="flex items-center gap-5">
+      <div className="flex flex-wrap items-center gap-4 sm:gap-5">
         {value ? (
           <div className="relative w-28 h-28 shrink-0 rounded-xl overflow-hidden border border-[#ededed] bg-[#fafafa]">
             <Image src={value} alt="" fill sizes="112px" className="object-cover" />
@@ -100,6 +102,7 @@ export function DynamicForm({ value, onChange }: { value: unknown; onChange: (ne
         <div className="space-y-2">
           {value.map((pair, i) => (
             <div key={i} className="flex gap-2 items-start">
+              <div className="flex-1 min-w-0 flex flex-col sm:flex-row gap-2">
               <input
                 className={inputClass}
                 value={pair[0]}
@@ -112,6 +115,7 @@ export function DynamicForm({ value, onChange }: { value: unknown; onChange: (ne
                 placeholder="คำอธิบาย"
                 onChange={(e) => onChange(value.map((p, idx) => (idx === i ? [p[0], e.target.value] : p)))}
               />
+              </div>
               <button type="button" onClick={() => onChange(value.filter((_, idx) => idx !== i))} className={removeBtn} aria-label="ลบแถว">
                 <Trash2 size={14} />
               </button>

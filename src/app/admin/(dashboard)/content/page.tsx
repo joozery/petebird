@@ -95,8 +95,22 @@ export default function AdminContentPage() {
       <h1 className="text-[22px] font-semibold text-[#1f1b16]">ข้อความหน้าเว็บ</h1>
       <p className="mt-1 text-sm text-[#8a7f6d]">แก้ไขข้อความทั้ง 3 ภาษา แต่ละส่วนของหน้าเว็บ</p>
 
-      <div className="mt-6 flex gap-6">
-        <aside className="w-56 shrink-0 space-y-0.5">
+      {/* Phones: compact section picker instead of the side list */}
+      <label className="mt-5 block lg:hidden">
+        <span className="block text-[13px] font-medium text-[#50493f]">ส่วนที่ต้องการแก้ไข</span>
+        <select
+          value={activeKey}
+          onChange={(e) => setActiveKey(e.target.value)}
+          className="mt-1.5 w-full rounded-lg border border-[#e5e3dd] bg-white px-3 py-3 text-sm text-[#1f1b16] outline-none focus:border-[#b8892c] focus:ring-2 focus:ring-[#b8892c1a]"
+        >
+          {SECTIONS.map((s) => (
+            <option key={s.key} value={s.key}>{s.label}</option>
+          ))}
+        </select>
+      </label>
+
+      <div className="mt-4 lg:mt-6 flex gap-6">
+        <aside className="hidden lg:block w-56 shrink-0 space-y-0.5">
           {SECTIONS.map((s) => (
             <button
               key={s.key}
@@ -111,13 +125,13 @@ export default function AdminContentPage() {
         </aside>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between">
-            <div className="flex gap-1 bg-[#f5f4f2] rounded-lg p-1">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex gap-1 bg-[#f5f4f2] rounded-lg p-1 flex-1 sm:flex-none">
               {LANG_TABS.map((l) => (
                 <button
                   key={l.code}
                   onClick={() => setTab(l.code)}
-                  className={`px-4 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 sm:py-1.5 text-[13px] sm:text-xs font-medium rounded-md transition-colors ${
                     tab === l.code ? 'bg-white text-[#1f1b16] shadow-[0_1px_2px_rgba(0,0,0,0.06)]' : 'text-[#8a7f6d]'
                   }`}
                 >
@@ -128,7 +142,7 @@ export default function AdminContentPage() {
             <button
               onClick={save}
               disabled={saving || data === null}
-              className="rounded-lg bg-[#1f1b16] text-white px-5 py-2.5 text-sm font-medium hover:bg-[#33291c] disabled:opacity-60 transition-colors"
+              className="hidden sm:block rounded-lg bg-[#1f1b16] text-white px-5 py-2.5 text-sm font-medium hover:bg-[#33291c] disabled:opacity-60 transition-colors"
             >
               {saving ? 'กำลังบันทึก...' : 'บันทึก'}
             </button>
@@ -145,7 +159,7 @@ export default function AdminContentPage() {
             </div>
           )}
 
-          <div className="mt-4 bg-white border border-[#ededed] rounded-2xl p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+          <div className="mt-4 bg-white border border-[#ededed] rounded-2xl p-4 sm:p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
             {data === null ? (
               <div className="space-y-3">
                 {[0, 1, 2].map((i) => (
@@ -155,6 +169,17 @@ export default function AdminContentPage() {
             ) : (
               <DynamicForm value={data[tab]} onChange={(next) => setData({ ...data, [tab]: next })} />
             )}
+          </div>
+
+          {/* Phones: sticky save bar so it's reachable from anywhere in a long section */}
+          <div className="sm:hidden sticky bottom-0 z-10 -mx-4 mt-4 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-white/95 backdrop-blur border-t border-[#ededed]">
+            <button
+              onClick={save}
+              disabled={saving || data === null}
+              className="w-full rounded-lg bg-[#1f1b16] text-white px-5 py-3 text-sm font-medium hover:bg-[#33291c] disabled:opacity-60 transition-colors"
+            >
+              {saving ? 'กำลังบันทึก...' : 'บันทึก'}
+            </button>
           </div>
         </div>
       </div>
