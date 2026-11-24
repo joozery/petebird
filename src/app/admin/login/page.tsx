@@ -56,7 +56,7 @@ function AdminLoginForm() {
           <Image src={logo} alt="Pete Bird's Nest" height={44} style={{ width: 'auto', height: 44 }} priority />
         </div>
 
-        <form onSubmit={onSubmit} className="mt-8 bg-white border border-[#ededed] rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_32px_rgba(31,27,22,0.06)] p-8">
+        <form onSubmit={onSubmit} className="mt-8 bg-white border border-[#ededed] rounded-2xl shadow-[0_1px_2px_rgba(0,0,0,0.04),0_12px_32px_rgba(31,27,22,0.06)] p-6 sm:p-8">
           <h1 className="text-xl font-semibold text-[#1f1b16]">เข้าสู่ระบบแอดมิน</h1>
           <p className="mt-1 text-sm text-[#8a7f6d]">จัดการสินค้า เนื้อหา และข้อมูลติดต่อของเว็บไซต์</p>
 

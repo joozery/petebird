@@ -36,7 +36,7 @@ const LANG_TABS: { code: 'th' | 'en' | 'zh'; label: string }[] = [
 
 const input = 'mt-1.5 w-full rounded-lg border border-[#e5e3dd] bg-white px-3 py-2.5 text-sm text-[#1f1b16] outline-none focus:border-[#b8892c] focus:ring-2 focus:ring-[#b8892c1a] transition-shadow';
 const label = 'block text-[13px] font-medium text-[#50493f]';
-const card = 'bg-white border border-[#ededed] rounded-2xl p-6';
+const card = 'bg-white border border-[#ededed] rounded-2xl p-4 sm:p-6';
 const cardTitle = 'text-[15px] font-semibold text-[#1f1b16]';
 
 export function ProductForm({ productId }: { productId?: string }) {
@@ -140,7 +140,7 @@ export function ProductForm({ productId }: { productId?: string }) {
     <form onSubmit={onSubmit} className="max-w-3xl space-y-5">
       <div className={card}>
         <h2 className={cardTitle}>ข้อมูลพื้นฐาน</h2>
-        <div className="mt-4 grid grid-cols-2 gap-4">
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className={label}>
             Slug (เช่น 01, 02)
             <input className={input} required value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} />
@@ -173,7 +173,7 @@ export function ProductForm({ productId }: { productId?: string }) {
 
       <div className={card}>
         <h2 className={cardTitle}>รูปสินค้า</h2>
-        <div className="mt-4 flex items-center gap-5">
+        <div className="mt-4 flex flex-wrap items-center gap-4 sm:gap-5">
           {form.image ? (
             <div className="relative w-28 h-28 shrink-0 rounded-xl overflow-hidden border border-[#ededed] bg-[#fafafa]">
               <Image src={form.image} alt="" fill sizes="112px" className="object-cover" />
@@ -192,7 +192,7 @@ export function ProductForm({ productId }: { productId?: string }) {
       </div>
 
       <div className={card}>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className={cardTitle}>ข้อความสินค้า</h2>
           <div className="flex gap-1 bg-[#f5f4f2] rounded-lg p-1">
             {LANG_TABS.map((l) => (
@@ -209,7 +209,7 @@ export function ProductForm({ productId }: { productId?: string }) {
             ))}
           </div>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-4">
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className={label}>
             ชื่อสินค้า
             <input className={input} required value={form.translations[tab].name} onChange={(e) => updateTranslation('name', e.target.value)} />
@@ -226,11 +226,11 @@ export function ProductForm({ productId }: { productId?: string }) {
             ข้อความ alt รูปภาพ
             <input className={input} required value={form.translations[tab].alt} onChange={(e) => updateTranslation('alt', e.target.value)} />
           </label>
-          <label className={`${label} col-span-2`}>
+          <label className={`${label} sm:col-span-2`}>
             คำอธิบายสั้น (การ์ดสินค้า)
             <textarea className={`${input} min-h-20`} required value={form.translations[tab].description} onChange={(e) => updateTranslation('description', e.target.value)} />
           </label>
-          <label className={`${label} col-span-2`}>
+          <label className={`${label} sm:col-span-2`}>
             รายละเอียดเต็ม (popup)
             <textarea className={`${input} min-h-24`} required value={form.translations[tab].detail} onChange={(e) => updateTranslation('detail', e.target.value)} />
           </label>
@@ -243,7 +243,7 @@ export function ProductForm({ productId }: { productId?: string }) {
         </div>
       )}
 
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3">
         <button type="submit" disabled={saving} className="rounded-lg bg-[#1f1b16] text-white px-5 py-2.5 text-sm font-medium hover:bg-[#33291c] disabled:opacity-60 transition-colors">
           {saving ? 'กำลังบันทึก...' : 'บันทึก'}
         </button>

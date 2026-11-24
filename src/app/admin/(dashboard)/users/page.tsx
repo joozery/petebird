@@ -122,8 +122,8 @@ export default function AdminUsersPage() {
         ) : users.length === 0 ? (
           <p className="p-10 text-center text-sm text-[#8a7f6d]">ยังไม่มีผู้ใช้งาน</p>
         ) : (
-          <table className="w-full text-sm">
-            <thead>
+          <table className="w-full text-sm max-md:block">
+            <thead className="max-md:hidden">
               <tr className="bg-[#fafafa] border-b border-[#ededed] text-left text-[11px] uppercase tracking-wide text-[#a79e8c]">
                 <th className="px-5 py-3 font-medium">ผู้ใช้งาน</th>
                 <th className="px-5 py-3 font-medium">สิทธิ์</th>
@@ -132,14 +132,14 @@ export default function AdminUsersPage() {
                 <th className="px-5 py-3 font-medium text-right">จัดการ</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="max-md:block">
               {users.map((u) => {
                 const isSelf = u._id === currentUserId;
                 const isLastOwner = u.role === 'owner' && u.isActive && activeOwnerCount <= 1;
                 const lastLogin = formatDate(u.lastLoginAt);
                 return (
-                  <tr key={u._id} className="border-b border-[#f3f2ef] last:border-0 hover:bg-[#fbfbfa] transition-colors">
-                    <td className="px-5 py-3.5">
+                  <tr key={u._id} className="max-md:flex max-md:flex-wrap max-md:items-center max-md:gap-x-4 max-md:gap-y-2.5 max-md:p-4 border-b border-[#f3f2ef] last:border-0 hover:bg-[#fbfbfa] transition-colors">
+                    <td className="px-5 py-3.5 max-md:p-0 max-md:w-full">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 shrink-0 rounded-full bg-gradient-to-br from-[#c7974c] to-[#9c753a] text-white text-xs font-semibold flex items-center justify-center">
                           {initialsOf(u.name)}
@@ -155,7 +155,7 @@ export default function AdminUsersPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-5 py-3.5">
+                    <td className="px-5 py-3.5 max-md:p-0">
                       <RoleMenu
                         user={u}
                         disabled={isLastOwner && u.role === 'owner'}
@@ -163,7 +163,7 @@ export default function AdminUsersPage() {
                         onChange={(role) => patchUser(u._id, { role })}
                       />
                     </td>
-                    <td className="px-5 py-3.5">
+                    <td className="px-5 py-3.5 max-md:p-0">
                       <Tooltip.Provider delayDuration={200}>
                         <Tooltip.Root>
                           <Tooltip.Trigger asChild>
@@ -190,14 +190,14 @@ export default function AdminUsersPage() {
                         </Tooltip.Root>
                       </Tooltip.Provider>
                     </td>
-                    <td className="px-5 py-3.5 text-[#8a7f6d]">
+                    <td className="px-5 py-3.5 max-md:p-0 max-md:order-last max-md:w-full text-[#8a7f6d]">
                       {lastLogin ? (
                         <span className="flex items-center gap-1.5 text-xs"><Clock size={12} className="text-[#a79e8c]" /> {lastLogin}</span>
                       ) : (
                         <span className="text-xs text-[#c3b89f]">ยังไม่เคยเข้าสู่ระบบ</span>
                       )}
                     </td>
-                    <td className="px-5 py-3.5 text-right">
+                    <td className="px-5 py-3.5 max-md:p-0 max-md:ml-auto text-right">
                       <Tooltip.Provider delayDuration={200}>
                         <Tooltip.Root>
                           <Tooltip.Trigger asChild>

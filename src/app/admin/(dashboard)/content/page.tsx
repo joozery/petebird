@@ -95,13 +95,13 @@ export default function AdminContentPage() {
       <h1 className="text-[22px] font-semibold text-[#1f1b16]">ข้อความหน้าเว็บ</h1>
       <p className="mt-1 text-sm text-[#8a7f6d]">แก้ไขข้อความทั้ง 3 ภาษา แต่ละส่วนของหน้าเว็บ</p>
 
-      <div className="mt-6 flex gap-6">
-        <aside className="w-56 shrink-0 space-y-0.5">
+      <div className="mt-6 flex flex-col lg:flex-row gap-4 lg:gap-6">
+        <aside className="lg:w-56 shrink-0 flex lg:block gap-1.5 lg:gap-0 overflow-x-auto lg:overflow-visible lg:space-y-0.5 -mx-4 px-4 sm:mx-0 sm:px-0 pb-1 lg:pb-0">
           {SECTIONS.map((s) => (
             <button
               key={s.key}
               onClick={() => setActiveKey(s.key)}
-              className={`block w-full text-left rounded-lg px-3 py-2.5 text-[13.5px] transition-colors ${
+              className={`block shrink-0 whitespace-nowrap lg:whitespace-normal lg:w-full text-left rounded-lg px-3 py-2.5 text-[13.5px] transition-colors ${
                 activeKey === s.key ? 'bg-[#1f1b16] text-white font-medium' : 'text-[#50493f] hover:bg-[#f5f4f2]'
               }`}
             >
@@ -111,7 +111,7 @@ export default function AdminContentPage() {
         </aside>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex gap-1 bg-[#f5f4f2] rounded-lg p-1">
               {LANG_TABS.map((l) => (
                 <button
@@ -145,7 +145,7 @@ export default function AdminContentPage() {
             </div>
           )}
 
-          <div className="mt-4 bg-white border border-[#ededed] rounded-2xl p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+          <div className="mt-4 bg-white border border-[#ededed] rounded-2xl p-4 sm:p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
             {data === null ? (
               <div className="space-y-3">
                 {[0, 1, 2].map((i) => (

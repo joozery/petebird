@@ -109,7 +109,7 @@ export default function AdminContactPage() {
           <p className={`${label} flex items-center gap-1.5`}>
             <QrCode size={14} className="text-[#a79e8c]" /> QR Code LINE
           </p>
-          <div className="mt-2 flex items-center gap-5">
+          <div className="mt-2 flex flex-wrap items-center gap-4 sm:gap-5">
             {form.lineQrImage ? (
               <div className="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden border border-[#ededed] bg-[#fafafa]">
                 <Image src={form.lineQrImage} alt="" fill sizes="96px" className="object-contain" />

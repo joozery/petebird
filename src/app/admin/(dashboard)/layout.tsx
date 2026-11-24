@@ -7,10 +7,10 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
   if (!session) redirect('/admin/login');
 
   return (
-    <div className="min-h-screen flex bg-white text-[#1f1b16]">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-white text-[#1f1b16]">
       <AdminSidebar name={session.name} role={session.role} />
       <main className="flex-1 min-w-0 bg-white">
-        <div className="max-w-6xl px-10 py-9">{children}</div>
+        <div className="max-w-6xl px-4 py-5 sm:px-6 sm:py-7 lg:px-10 lg:py-9">{children}</div>
       </main>
     </div>
   );

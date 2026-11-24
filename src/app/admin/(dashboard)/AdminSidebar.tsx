@@ -1,8 +1,9 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutGrid, Package, FileText, Contact, Users, LogOut } from 'lucide-react';
+import { LayoutGrid, Package, FileText, Contact, Users, LogOut, Menu, X } from 'lucide-react';
 import type { AdminRole } from '@/lib/models/AdminUser';
 
 const links: { href: string; label: string; icon: typeof LayoutGrid; ownerOnly?: boolean }[] = [
@@ -16,6 +17,18 @@ const links: { href: string; label: string; icon: typeof LayoutGrid; ownerOnly?:
 export function AdminSidebar({ name, role }: { name: string; role: AdminRole }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [open]);
 
   async function logout() {
     await fetch('/api/admin/auth/logout', { method: 'POST' });
@@ -24,14 +37,37 @@ export function AdminSidebar({ name, role }: { name: string; role: AdminRole }) 
   }
 
   return (
-    <aside className="w-64 shrink-0 bg-white border-r border-[#ededed] flex flex-col">
-      <div className="h-16 px-6 flex items-center border-b border-[#ededed]">
+    <>
+      <header className="lg:hidden sticky top-0 z-30 h-14 px-4 flex items-center justify-between bg-white border-b border-[#ededed]">
+        <div>
+          <p className="text-[9px] tracking-[0.18em] text-[#b8892c] font-semibold leading-tight">PETE BIRD&apos;S NEST</p>
+          <p className="text-[13px] text-[#1f1b16] font-medium leading-tight">หลังบ้านแอดมิน</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label="เปิดเมนู"
+          className="w-11 h-11 -mr-2 flex items-center justify-center rounded-lg text-[#1f1b16] hover:bg-[#f5f4f2]"
+        >
+          <Menu size={22} />
+        </button>
+      </header>
+      {open && <div className="lg:hidden fixed inset-0 z-40 bg-[#1f1b16]/40" onClick={() => setOpen(false)} aria-hidden />}
+    <aside
+      className={`fixed inset-y-0 left-0 z-50 w-64 max-w-[80vw] transition-transform duration-200 lg:static lg:z-auto lg:translate-x-0 lg:max-w-none shrink-0 bg-white border-r border-[#ededed] flex flex-col ${
+        open ? 'translate-x-0' : '-translate-x-full'
+      }`}
+    >
+      <div className="h-16 px-6 flex items-center justify-between border-b border-[#ededed]">
         <div>
           <p className="text-[10px] tracking-[0.18em] text-[#b8892c] font-semibold">PETE BIRD&apos;S NEST</p>
           <p className="text-[13px] text-[#1f1b16] font-medium">หลังบ้านแอดมิน</p>
         </div>
+        <button type="button" onClick={() => setOpen(false)} aria-label="ปิดเมนู" className="lg:hidden w-10 h-10 -mr-2 flex items-center justify-center rounded-lg text-[#50493f] hover:bg-[#f5f4f2]">
+          <X size={20} />
+        </button>
       </div>
-      <nav className="flex-1 px-3 py-5 space-y-0.5">
+      <nav className="flex-1 overflow-y-auto px-3 py-5 space-y-0.5">
         {links
           .filter((l) => !l.ownerOnly || role === 'owner')
           .map((l) => {
@@ -41,7 +77,7 @@ export function AdminSidebar({ name, role }: { name: string; role: AdminRole }) 
               <Link
                 key={l.href}
                 href={l.href}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13.5px] transition-colors ${
+                className={`flex items-center gap-3 rounded-lg px-3 py-3 lg:py-2.5 text-[13.5px] transition-colors ${
                   active ? 'bg-[#1f1b16] text-white font-medium' : 'text-[#50493f] hover:bg-[#f5f4f2]'
                 }`}
               >
@@ -66,5 +102,6 @@ export function AdminSidebar({ name, role }: { name: string; role: AdminRole }) 
         </button>
       </div>
     </aside>
+    </>
   );
 }

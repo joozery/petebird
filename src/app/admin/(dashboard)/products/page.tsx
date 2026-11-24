@@ -50,7 +50,7 @@ export default function AdminProductsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex items-start sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-[22px] font-semibold text-[#1f1b16]">สินค้า</h1>
           <p className="mt-1 text-sm text-[#8a7f6d]">จัดการสินค้า ราคา และรูปภาพที่แสดงบนหน้าเว็บ</p>
@@ -82,8 +82,8 @@ export default function AdminProductsPage() {
             <p className="mt-3 text-sm text-[#8a7f6d]">ยังไม่มีสินค้า — กด &quot;เพิ่มสินค้า&quot; หรือรัน seed script</p>
           </div>
         ) : (
-          <table className="w-full text-sm">
-            <thead>
+          <table className="w-full text-sm max-md:block">
+            <thead className="max-md:hidden">
               <tr className="bg-[#fafafa] border-b border-[#ededed] text-left text-[11px] uppercase tracking-wide text-[#a79e8c]">
                 <th className="px-5 py-3 font-medium">สินค้า</th>
                 <th className="px-5 py-3 font-medium">Badge</th>
@@ -92,10 +92,10 @@ export default function AdminProductsPage() {
                 <th className="px-5 py-3 font-medium text-right">จัดการ</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="max-md:block">
               {products.map((p) => (
-                <tr key={p._id} className="border-b border-[#f3f2ef] last:border-0 hover:bg-[#fbfbfa] transition-colors">
-                  <td className="px-5 py-3">
+                <tr key={p._id} className="max-md:flex max-md:flex-wrap max-md:items-center max-md:gap-x-4 max-md:gap-y-2.5 max-md:p-4 border-b border-[#f3f2ef] last:border-0 hover:bg-[#fbfbfa] transition-colors">
+                  <td className="px-5 py-3 max-md:p-0 max-md:w-full">
                     <div className="flex items-center gap-3">
                       {p.image && (
                         <div className="relative w-12 h-12 shrink-0 rounded-lg overflow-hidden bg-[#f5f1e7] border border-[#ededed]">
@@ -108,9 +108,9 @@ export default function AdminProductsPage() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-5 py-3 text-[#50493f]">{p.badge}</td>
-                  <td className="px-5 py-3 text-[#50493f]">{p.price === null ? 'สอบถามราคา' : `฿${p.price.toLocaleString('th-TH')}`}</td>
-                  <td className="px-5 py-3">
+                  <td className="px-5 py-3 max-md:p-0 text-[#50493f]">{p.badge}</td>
+                  <td className="px-5 py-3 max-md:p-0 text-[#50493f]">{p.price === null ? 'สอบถามราคา' : `฿${p.price.toLocaleString('th-TH')}`}</td>
+                  <td className="px-5 py-3 max-md:p-0">
                     <button
                       onClick={() => togglePublished(p)}
                       className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full transition-colors ${
@@ -121,19 +121,19 @@ export default function AdminProductsPage() {
                       {p.isPublished ? 'แสดงอยู่' : 'ซ่อนอยู่'}
                     </button>
                   </td>
-                  <td className="px-5 py-3">
+                  <td className="px-5 py-3 max-md:p-0 max-md:ml-auto">
                     <div className="flex items-center justify-end gap-1">
                       <Link
                         href={`/admin/products/${p._id}`}
                         aria-label={`แก้ไข ${p.translations.th.name}`}
-                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-[#50493f] hover:bg-[#f5f4f2] transition-colors"
+                        className="inline-flex items-center justify-center w-10 h-10 md:w-8 md:h-8 rounded-lg text-[#50493f] hover:bg-[#f5f4f2] transition-colors"
                       >
                         <PenLine size={15} />
                       </Link>
                       <button
                         onClick={() => setDeleteTarget(p)}
                         aria-label={`ลบ ${p.translations.th.name}`}
-                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-[#c0564a] hover:bg-[#fdf0ee] transition-colors"
+                        className="inline-flex items-center justify-center w-10 h-10 md:w-8 md:h-8 rounded-lg text-[#c0564a] hover:bg-[#fdf0ee] transition-colors"
                       >
                         <Trash2 size={15} />
                       </button>

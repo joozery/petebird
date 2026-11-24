@@ -53,7 +53,7 @@ function ImageField({ value, onChange }: { value: string; onChange: (next: strin
 
   return (
     <div>
-      <div className="flex items-center gap-5">
+      <div className="flex flex-wrap items-center gap-4 sm:gap-5">
         {value ? (
           <div className="relative w-28 h-28 shrink-0 rounded-xl overflow-hidden border border-[#ededed] bg-[#fafafa]">
             <Image src={value} alt="" fill sizes="112px" className="object-cover" />
